@@ -14,7 +14,7 @@ print (root[11][2][0].text)
 for pid_usage in root.findall('PID-USAGE'):
     for pid in pid_usage.findall('PID'):
         #I already cast the text of number to an hexadecimal number var
-        number =  hex(int(pid.find('NUMBER').text,16) + int("0x200", 16))
+        number =  hex(int(pid.find('NUMBER').text,16))
         description = pid.find('DESCRIPTION').text
         print (number)
         print (description)
