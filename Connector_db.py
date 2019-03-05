@@ -11,20 +11,20 @@ def connect_to_db():
                              user='username',
                              password='password')
     
-    if connection.is_connected():
-        print 'Connectat'
-        cursor = connection.cursor()
-    else:
-        print 'You are currently disconnected'
+        if (connection.is_connected()):
+            print ('Connectat')
+            cursor = connection.cursor()
+        else:
+            print ('You are currently disconnected')
     except Error as e:
-        print 'Error. '
+        print ('Error. ')
         return 0
-    print 'Fetching a table...'
-    sql_select_Query = ("SELECT * FROM" + str(name_of_table))
+    print ('Fetching a table...')
+    sql_select_Query = ("SELECT * FROM" + "PID")
     cursor.execute(sql_select_Query)
     table = cursor.fetchall()
     for row in table:
-        print row
+        print (row)
     cursor.close()
     connection.close()
     return
