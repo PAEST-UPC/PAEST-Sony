@@ -1,3 +1,0 @@
-{'Tables_in_world': 'city'}
-{'Tables_in_world': 'country'}
-{'Tables_in_world': 'countrylanguage'}
