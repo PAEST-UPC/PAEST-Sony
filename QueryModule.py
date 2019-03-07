@@ -21,7 +21,7 @@ def obtainFilterDict():
 
 	    # SQL query string
 		# Obtain all column names in employeesample table in format (table,name)
-		sqlQuery = "select table_name, column_name from information_schema.columns where table_name = 'employeesample'"
+		sqlQuery = "select table_name, column_name from information_schema.columns where table_name = 'employeesample' order by column_name"
 
 	    # Execute the sqlQuery
 		cursorObject.execute(sqlQuery)
