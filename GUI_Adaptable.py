@@ -1,5 +1,7 @@
 from tkinter import *
 from tkinter.ttk import *
+import QueryModule
+
 window=Tk()
 
 window.title("Searcher Window")
@@ -13,12 +15,7 @@ lbl4=Label(window, text="Els resultats de la cerca son: ")
 labelsDic = {}
 CBoxDic = {}
 
-filterDict = {
-	"key1" : ["value 1", "value 2", "value 3"],
-	"key2" : ["value 1", "value 2", "value 3"],
-	"key3" : ["value 1", "value 2", "value 3"],
-	"key4" : ["value 1", "value 2", "value 3"],
-}
+filterDict = QueryModule.obtainFilterDict()
 
 for filterName in filterDict:
 	labelsDic[filterName] = Label(window, text=filterName)
