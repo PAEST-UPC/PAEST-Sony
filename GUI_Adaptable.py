@@ -17,17 +17,23 @@ CBoxDic = {}
 
 filterDict = QueryModule.obtainFilterDict()
 
-for filterName in filterDict:
-	labelsDic[filterName] = Label(window, text=filterName)
-	CBoxDic[filterName] = Combobox(window,state="readonly", values=filterDict[filterName])
-	labelsDic[filterName].grid(column=0, row=rows, pady=5)
-	CBoxDic[filterName].grid(column=1, row=rows, pady=5, padx=10)
+for (tableName,filterName) in filterDict:
+	labelsDic[(tableName,filterName)] = Label(window, text=filterName)
+	CBoxDic[(tableName,filterName)] = Combobox(window,state="readonly", values=filterDict[(tableName,filterName)])
+	labelsDic[(tableName,filterName)].grid(column=0, row=rows, pady=5)
+	CBoxDic[(tableName,filterName)].grid(column=1, row=rows, pady=5, padx=10)
 	rows += 1
 
 	
-	
 def cerca():
+	#result = queryFiltered(CBoxDic)
+
+
 	lbl4.grid(column=0, row=rows, pady=10)
+
+
+
+
 button2=Button(window, text="Cerca", command=cerca())
 button2.grid(column=1, row=rows, pady=10)
 rows += 1
