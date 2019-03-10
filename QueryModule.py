@@ -50,7 +50,8 @@ def obtainFilterDict():
 		connectionObject.close()
 
 
-def queryFiltered(filterDict):
+
+def querySearch(searchDict):
 
 	# Create a connection object
 	connectionObject = pymysql.connect(host=dbServerName, user=dbUser, password=dbPassword,
@@ -59,8 +60,31 @@ def queryFiltered(filterDict):
 		# Create a cursor object
 		cursorObject = connectionObject.cursor()
 
-		#sqlQuery = "select {0} from {1} order by {0}".format(column_name, table_name)
+		sqlQuery = ""
 
+		firstFlag = True
+		for table_name, column_name in searchDict:
+
+			if searchDict[(table_name,column_name)].isdigit():
+				value = searchDict[(table_name,column_name)]
+			else:
+				value = "\'{0}\'".format(searchDict[(table_name,column_name)])
+
+			if firstFlag:
+				sqlQuery += "select * from {0} where {1}={2}".format(table_name,column_name,value)
+				print(sqlQuery)
+				firstFlag = False
+			else:
+				sqlQuery += " and {0}={1}".format(column_name,value)
+				print(sqlQuery)
+
+		# Execute the sqlQuery
+		cursorObject.execute(sqlQuery)
+
+		# Fetch all the rows
+		rows = cursorObject.fetchall()
+
+		return rows
 
 	except Exception as e:
 

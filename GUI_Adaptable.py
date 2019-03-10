@@ -1,6 +1,6 @@
 from tkinter import *
 from tkinter.ttk import *
-import QueryModule
+from QueryModule import *
 
 window=Tk()
 
@@ -10,12 +10,12 @@ rows=0
 lbl=Label(window, text="Els desplegables son: ")
 lbl.grid(column=0,row=rows)
 rows += 1
-lbl4=Label(window, text="Els resultats de la cerca son: ")
+
 
 labelsDict = {}
 CBoxDict = {}
 
-filterDict = QueryModule.obtainFilterDict()
+filterDict = obtainFilterDict()
 
 for (tableName,filterName) in filterDict:
 	labelsDict[(tableName,filterName)] = Label(window, text=filterName)
@@ -24,17 +24,24 @@ for (tableName,filterName) in filterDict:
 	CBoxDict[(tableName,filterName)].grid(column=1, row=rows, pady=5, padx=10)
 	rows += 1
 
+def obtainSearchDict(CBoxDict):
+	searchDict = {}
+	for (tableName,filterName) in CBoxDict:
+		filterValue = CBoxDict[(tableName,filterName)].get()
+		if filterValue != '':
+			searchDict[(tableName,filterName)] = filterValue
+	return searchDict
 	
 def cerca():
-	#result = queryFiltered(CBoxDict)
-
-
+	searchDict = obtainSearchDict(CBoxDict)
+	print(searchDict)
+	searchResult = querySearch(searchDict)
+	lbl4=Label(window, text=str(searchResult))
 	lbl4.grid(column=0, row=rows, pady=10)
 
 
 
-
-button2=Button(window, text="Cerca", command=cerca())
+button2=Button(window, text="Cerca", command=cerca)
 button2.grid(column=1, row=rows, pady=10)
 rows += 1
 window.mainloop()
