@@ -72,13 +72,12 @@ def querySearch(searchDict):
 
 			if firstFlag:
 				sqlQuery += "select * from {0} where {1}={2}".format(table_name,column_name,value)
-				print(sqlQuery)
 				firstFlag = False
 			else:
 				sqlQuery += " and {0}={1}".format(column_name,value)
-				print(sqlQuery)
 
 		# Execute the sqlQuery
+		print('Quering DB: ' + sqlQuery)
 		cursorObject.execute(sqlQuery)
 
 		# Fetch all the rows
