@@ -12,21 +12,21 @@ lbl.grid(column=0,row=rows)
 rows += 1
 lbl4=Label(window, text="Els resultats de la cerca son: ")
 
-labelsDic = {}
-CBoxDic = {}
+labelsDict = {}
+CBoxDict = {}
 
 filterDict = QueryModule.obtainFilterDict()
 
 for (tableName,filterName) in filterDict:
-	labelsDic[(tableName,filterName)] = Label(window, text=filterName)
-	CBoxDic[(tableName,filterName)] = Combobox(window,state="readonly", values=filterDict[(tableName,filterName)])
-	labelsDic[(tableName,filterName)].grid(column=0, row=rows, pady=5)
-	CBoxDic[(tableName,filterName)].grid(column=1, row=rows, pady=5, padx=10)
+	labelsDict[(tableName,filterName)] = Label(window, text=filterName)
+	CBoxDict[(tableName,filterName)] = Combobox(window,state="readonly", values=filterDict[(tableName,filterName)])
+	labelsDict[(tableName,filterName)].grid(column=0, row=rows, pady=5)
+	CBoxDict[(tableName,filterName)].grid(column=1, row=rows, pady=5, padx=10)
 	rows += 1
 
 	
 def cerca():
-	#result = queryFiltered(CBoxDic)
+	#result = queryFiltered(CBoxDict)
 
 
 	lbl4.grid(column=0, row=rows, pady=10)
