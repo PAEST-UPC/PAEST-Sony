@@ -11,9 +11,16 @@ lbl=Label(window, text="Els desplegables son: ")
 lbl.grid(column=0,row=rows)
 rows += 1
 
+def clearCBox():
+	
+	#inv_CBoxDict = {values: keys for keys, values in clearButtonDict.items()}
+	#(tableName,filterName) = invCBoxDict[]
+
+	cbox.set('')
 
 labelsDict = {}
 CBoxDict = {}
+clearButtonDict = {}
 
 filterDict = obtainFilterDict()
 
@@ -21,7 +28,14 @@ for (tableName,filterName) in filterDict:
 	labelsDict[(tableName,filterName)] = Label(window, text=filterName)
 	CBoxDict[(tableName,filterName)] = Combobox(window,state="readonly", values=filterDict[(tableName,filterName)])
 	labelsDict[(tableName,filterName)].grid(column=0, row=rows, pady=5)
+	clearButtonDict[(tableName,filterName)].grid(column=2, row=rows, pady=5)
+	
+	#not working
+	CBoxList[rows] = 
+	clearButtonDict[(tableName,filterName)] = Button(window, text='Clear', command=clearCBox)
 	CBoxDict[(tableName,filterName)].grid(column=1, row=rows, pady=5, padx=10)
+	############
+
 	rows += 1
 
 def obtainSearchDict(CBoxDict):
@@ -31,7 +45,10 @@ def obtainSearchDict(CBoxDict):
 		if filterValue != '':
 			searchDict[(tableName,filterName)] = filterValue
 	return searchDict
+
+
 	
+
 def cerca():
 	searchDict = obtainSearchDict(CBoxDict)
 	print(searchDict)
