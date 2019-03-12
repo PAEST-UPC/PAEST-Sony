@@ -30,6 +30,10 @@ for i in range (0,len(xml_list)):
         print ('########################## START TS ########################################')
 
         #USING ELEMENT TO GET THE PID NUMBER AND DESCRIPTORS
+        #TOT SECTION
+        for tot in root.findall('{http://www.streamanalyser.com/schema}TOT'):
+            recording_time = tot.find('{http://www.streamanalyser.com/schema}UTC_time').text
+            for 
         #PMT SECTION
         for pmt in root.findall('{http://www.streamanalyser.com/schema}PMT'):
             print ('########### START PMT ##########')
@@ -50,7 +54,7 @@ for i in range (0,len(xml_list)):
                         for streamIdDescriptor in stream.findall('{http://www.streamanalyser.com/schema}StreamIdentifierDescriptor'):
                                 component_tag = hex(int(streamIdDescriptor.find('{http://www.streamanalyser.com/schema}component_tag').text,16))
                                 print ('COMPONENT TAG: ' + component_tag)
-                    elif stream_type == hex(3):
+                    elif stream_type == hex(3) or stream_type == hex(4):
                         print ('AUDIO STREAM')
                         for streamIdDescriptor in stream.findall('{http://www.streamanalyser.com/schema}StreamIdentifierDescriptor'):
                                 component_tag = hex(int(streamIdDescriptor.find('{http://www.streamanalyser.com/schema}component_tag').text,16))
