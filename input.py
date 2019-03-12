@@ -26,27 +26,21 @@ for i in range (0,len(xml_list)):
         tree = ET.parse(fullname)
         root = tree.getroot()
         
-        #EXAMPLE OF USING TREE HIERARCHY TO GET THE CHILD WE WANT
-        #print (root[11][2][0].text)
         
-        print ('##################################################################')
-
-        #for child in root:
-        #    print (child.tag)
+        print ('########################## START TS ########################################')
 
         #USING ELEMENT TO GET THE PID NUMBER AND DESCRIPTORS
+        #PMT SECTION
         for pmt in root.findall('{http://www.streamanalyser.com/schema}PMT'):
-            print ('PMT FOUND')
+            print ('########### START PMT ##########')
             pid = hex(int(pmt.find('{http://www.streamanalyser.com/schema}PID').text,16))
             idTable = hex(int(pmt.find('{http://www.streamanalyser.com/schema}table_id').text,16))
             print ('PID: ' + pid)
             print ('table id: ' + idTable)
-            print ('#################')
 
             for streams in pmt.findall('{http://www.streamanalyser.com/schema}Streams'):
-                print ('STREAMS FOUND')
                 for stream in streams.findall('{http://www.streamanalyser.com/schema}Stream'):
-                    print ('STREAM FOUND')
+                    print ('###### START STREAM ######')
                     stream_type =  hex(int(stream.find('{http://www.streamanalyser.com/schema}stream_type').text,16))
                     elementary_PID =  hex(int(stream.find('{http://www.streamanalyser.com/schema}elementary_PID').text,16))
                     print ('stream_type: ' + stream_type)
@@ -68,7 +62,6 @@ for i in range (0,len(xml_list)):
                                         print ('AUDIO LANGUAGE: ' + audio_language)
                                         print ('AUDIO TYPE: ' + audio_type)
                     elif stream_type == hex(6):
-                        print ('DATA STREAM')
                         for streamIdDescriptor in stream.findall('{http://www.streamanalyser.com/schema}StreamIdentifierDescriptor'):
                                 component_tag = hex(int(streamIdDescriptor.find('{http://www.streamanalyser.com/schema}component_tag').text,16))
                                 print ('STREAM STANDARD: ' + component_tag)
@@ -81,9 +74,11 @@ for i in range (0,len(xml_list)):
                                                         subtitle_type = hex(int(subtitle.find('{http://www.streamanalyser.com/schema}subtitling_type').text,16))
                                                         print ('SUBTITLE LANGUAGE: ' + subtitle_language)
                                                         print ('SUBTITLE TYPE: ' + subtitle_type)
-                    print ('####')
+                    print ('##### END STREAM #####')
+            #VIDEO SECTION
+            print ('########### END PMT ##########')
             for video in root.findall('{http://www.streamanalyser.com/schema}Video'):
-                print ('VIDEO FOUND')
+                print ('########## START VIDEO ###########')
                 elementary_PID = hex(int(video.find('{http://www.streamanalyser.com/schema}PID').text,16))
                 video_type = hex(int(video.find('{http://www.streamanalyser.com/schema}Type').text,16))
                 for info in video.findall('{http://www.streamanalyser.com/schema}Info'):
@@ -92,6 +87,6 @@ for i in range (0,len(xml_list)):
                 print ('VIDEO PID: ' + elementary_PID)
                 print ('VIDEO TYPE: ' + video_type)
                 print ('RESOLUTION: ' + str(width) + ', ' + str(height))
-            print ('##############################')
-        print ('##################################################################')
+                print ('########## END VIDEO ############')
+        print ('########################## END TS ####################################')
 print ('####### SCRIPT END ##########')
