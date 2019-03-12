@@ -70,7 +70,7 @@ root = tree.getroot()
 i=0
 parameters = [ ]
 cursor.execute("SET SQL_SAFE_UPDATES=0;") #later we wont use it but for now its useful to avoid overwriting data
-cursor.execute("DELETE FROM PID;")
+cursor.execute("DELETE FROM PMT;")
 
 #USING ELEMENT TO GET THE PID NUMBER AND DESCRIPTORS
 for pid_usage in root.findall('PID-USAGE'):

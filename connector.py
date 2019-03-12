@@ -7,9 +7,9 @@ from mysql.connector import Error
 def connect_to_db():
     try:
         connection = connector.connect(host='localhost',
-                             database='db_name',
-                             user='username',
-                             password='password')
+                             database='dbTest',
+                             user='ubuntu',
+                             password='paesa19')
     
         if (connection.is_connected()):
             print ('Connectat')
@@ -20,13 +20,13 @@ def connect_to_db():
         print ('Error. ')
         return 0
     print ('Fetching a table...')
-    sql_select_Query = ("SELECT * FROM" + "PID")
-    cursor.execute(sql_select_Query)
-    table = cursor.fetchall()
-    for row in table:
-        print (row)
-    cursor.close()
+    sql_select_Query = ("SELECT * FROM" + "PMT")
+#    cursor.execute(sql_select_Query)
+#    table = cursor.fetchall()
+#    for row in table:
+#        print (row)
+#    cursor.close()
     connection.close()
     return
     
-
+connect_to_db()

@@ -5,24 +5,43 @@ from xml.etree.ElementTree import parse
 import os
 from os import scandir, getcwd
 from os.path import abspath
-
-print ('####### SCRIPT START ##########')
-#connect to the db
+import mysql.connector as connector
+import numpy as np
+from mysql.connector import Error
 
 final_xml_path = "/home/ubuntu/pae/xml/StreamAnalizer/Germany"
 
 def ls(final_xml_path = getcwd()):
-        #absolute xml path
-        #return [abspath(arch.path) for arch in scandir(final_xml_path) if arch.is_file()]
-        #only xml filename
         return [arch.name for arch in scandir(final_xml_path) if arch.is_file()]
 
+
+print ('####### SCRIPT START ##########')
+#CONNECTO TO THE DB
+#LIST ALL TS
 xml_list = ls(final_xml_path)
+
+connection = connector.connect(host='localhost',
+                             database='dbTest',
+                             user='ubuntu',
+                             password='paesa19')
+if (connection.is_connected()):
+    print ('Connected to the DB')
+    cursor = connection.cursor()
+else:
+    print ('You are currently disconnected')
+
+
+i=0
+parameters = [ ]
+cursor.execute("SET SQL_SAFE_UPDATES=0;") #later we wont use it but for now its useful to avoid overwriting data
+cursor.execute("DELETE FROM PMT;")
+cursor.execute("DELETE FROM Video;")
+
+
 
 for xml_name in (xml_list):
         fullname = os.path.join(final_xml_path, xml_name)
         print (fullname)
-
         tree = ET.parse(fullname)
         root = tree.getroot()
         
@@ -41,6 +60,9 @@ for xml_name in (xml_list):
             print ('PID: ' + pid)
             print ('table id: ' + idTable)
 
+            parameters.append([]) 
+            parameters[i].append(int(pid, 16))
+
             for streams in pmt.findall('{http://www.streamanalyser.com/schema}Streams'):
                 for stream in streams.findall('{http://www.streamanalyser.com/schema}Stream'):
                     print ('###### START STREAM ######')
@@ -48,6 +70,8 @@ for xml_name in (xml_list):
                     elementary_PID =  hex(int(stream.find('{http://www.streamanalyser.com/schema}elementary_PID').text,16))
                     print ('stream_type: ' + stream_type)
                     print ('elementary_PID: ' + elementary_PID)
+                    parameters[i].append(int(stream_type, 16))
+                    parameters[i].append(int(elementary_PID, 16))
                     if stream_type == hex(2):
                         print ('VIDEO STREAM')
                         for streamIdDescriptor in stream.findall('{http://www.streamanalyser.com/schema}StreamIdentifierDescriptor'):
@@ -78,8 +102,9 @@ for xml_name in (xml_list):
                                                         print ('SUBTITLE LANGUAGE: ' + subtitle_language)
                                                         print ('SUBTITLE TYPE: ' + subtitle_type)
                     print ('##### END STREAM #####')
-            #VIDEO SECTION
+            i +=1
             print ('########### END PMT ##########')
+            #VIDEO SECTION
             for video in root.findall('{http://www.streamanalyser.com/schema}Video'):
                 print ('########## START VIDEO ###########')
                 elementary_PID = hex(int(video.find('{http://www.streamanalyser.com/schema}PID').text,16))
@@ -92,4 +117,14 @@ for xml_name in (xml_list):
                 print ('RESOLUTION: ' + str(width) + ', ' + str(height))
                 print ('########## END VIDEO ############')
         print ('########################## END TS ####################################')
+
+print (parameters)
+sql_comm= """INSERT INTO PMT (PID_number, Stream_Type, Elementary_PID) VALUES (%d, %d, %d);"""
+result  = cursor.executemany(sql_comm, parameters)
+connection.commit()
+
+
+
+cursor.close()
+connection.close()
 print ('####### SCRIPT END ##########')
