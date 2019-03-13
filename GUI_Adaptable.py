@@ -20,6 +20,14 @@ clearButtonDict = {}
 
 filterDict = obtainFilterDict()
 
+#filterDict = {
+#	("key1", "aux1") : ["value 1", "value 2", "value 3"],
+#	("key2", "aux2") : ["value 1", "value 2", "value 3"],
+#	("key3", "aux3") : ["value 1", "value 2", "value 3"],
+#	("key4", "aux4") : ["value 1", "value 2", "value 3"]
+#}
+
+
 for (tableName,filterName) in filterDict:
 	labelsDict[(tableName,filterName)] = Label(window, text=filterName)
 	CBoxDict[(tableName,filterName)] = Combobox(window,state="readonly", values=filterDict[(tableName,filterName)])
