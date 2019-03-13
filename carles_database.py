@@ -42,6 +42,7 @@ idVideo = 0
 idAudio = 0
 idSubtitle = 0
 
+
 for xml_name in (xml_list):
         fullname = os.path.join(final_xml_path, xml_name)
         print (fullname)
@@ -56,18 +57,19 @@ for xml_name in (xml_list):
         for tot in root.findall('{http://www.streamanalyser.com/schema}TOT'):
             recording_time = tot.find('{http://www.streamanalyser.com/schema}UTC_time').text
         country_code = 'GER'
-        insertStatement = "INSERT INTO TS (Recording_Date, Country_Code) VALUES ({0}, {1})".format(recording_time, country_code)
-        cursor.execute(insertStatement)
         idTS+=1
+        insertStatement = "INSERT INTO TS (identifierTS, Recording_Date, Country_Code) VALUES ({0}, '{1}', '{2}')".format(idTS, recording_time, country_code)
+        cursor.execute(insertStatement)
+
         #PMT SECTION
         for pmt in root.findall('{http://www.streamanalyser.com/schema}PMT'):
             print ('########### START PMT ##########')
             pid = int(pmt.find('{http://www.streamanalyser.com/schema}PID').text,16)
             print ('PID: ' + str(pid))
             print ('idTS: ' + str(idTS))
-            insertStatement = "INSERT INTO PMT (PIDNumber, TS_identifierTS) VALUES ({0}, {1})".format(pid, idTS)
-            cursor.execute(insertStatement)
             idPMT +=1
+            insertStatement = "INSERT INTO PMT (idPMT, PIDNumber, TS_identifierTS) VALUES ({0}, {1}, {2})".format(idPMT, pid, idTS)
+            cursor.execute(insertStatement)
 
             for streams in pmt.findall('{http://www.streamanalyser.com/schema}Streams'):
                 for stream in streams.findall('{http://www.streamanalyser.com/schema}Stream'):
@@ -79,15 +81,21 @@ for xml_name in (xml_list):
                     print ('STREAM STANDARD: ' + str(component_tag))
                     print ('stream_type: ' + str(stream_type))
                     print ('elementary_PID: ' + str(elementary_PID))
-                    
+                    print ('idPMT: ' + str(idPMT)) 
                     #find type of stream and insert the row in corresponent table and row in streams after that relating both
                     if stream_type == 2:
                         print ('VIDEO STREAM')
                         #insert video table row
                         idVideo +=1
-                        insertStatement = "INSERT INTO Stream (Elementary_PID, Stream_Type, Stream_Standard, PMT_idPMT, PMT_TS_identifierTS, Video_idVideo) VALUES ({0}, {1}, {2}, {3}, {4}, {5})".format(elementary_PID, stream_type, component_tag, idPMT, idTS, idVideo)
+                        #####insert######
+                        W=50
+                        H=50
+                        I=1
+                        insertStatement = "INSERT INTO Video (idVideo, Width, Height, Interlaced) VALUES ({0}, {1}, {2}, {3})".format(idVideo, W, H, I)
                         cursor.execute(insertStatement)
                         idStream +=1
+                        insertStatement = "INSERT INTO Stream (idStream, Elementary_PID, Stream_Type, Stream_Standard, PMT_idPMT, PMT_TS_identifierTS, Video_idVideo, Audio_idAudio, Subtitles_idSubtitles) VALUES ({0}, {1}, {2}, {3}, {4}, {5}, {6}, NULL, NULL)".format(idStream, elementary_PID, stream_type, component_tag, idPMT, idTS, idVideo)
+                        cursor.execute(insertStatement)
                     elif stream_type == 3 or stream_type == 4:
                         print ('AUDIO STREAM')
                         for languageDescriptor in stream.findall('{http://www.streamanalyser.com/schema}ISO639LanguageDescriptor'):
@@ -96,12 +104,12 @@ for xml_name in (xml_list):
                                         audio_type = int(language.find('{http://www.streamanalyser.com/schema}audio_type').text,16)
                                         print ('AUDIO LANGUAGE: ' + audio_language)
                                         print ('AUDIO TYPE: ' + str(audio_type))
-                        insertStatement = "INSERT INTO Audio (Audio_Type, Audio_Language) VALUES ({0}, {1})".format(audio_type, audio_language)
-                        cursor.execute(insertStatement)
                         idAudio +=1
-                        insertStatement = "INSERT INTO Stream (Elementary_PID, Stream_Type, Stream_Standard, PMT_idPMT, PMT_TS_identifierTS, Audio_idAudio) VALUES ({0}, {1}, {2}, {3}, {4}, {5})".format(elementary_PID, stream_type, component_tag, idPMT, idTS, idAudio)
+                        insertStatement = "INSERT INTO Audio (idAudio, Audio_Type, Audio_Language) VALUES ({0}, {1}, '{2}')".format(idAudio, audio_type, audio_language)
                         cursor.execute(insertStatement)
                         idStream +=1
+                        insertStatement = "INSERT INTO Stream (idStream, Elementary_PID, Stream_Type, Stream_Standard, PMT_idPMT, PMT_TS_identifierTS, Video_idVideo, Audio_idAudio, Subtitles_idSubtitles) VALUES ({0}, {1}, {2}, {3}, {4}, {5}, NULL, {6}, NULL)".format(idStream, elementary_PID, stream_type, component_tag, idPMT, idTS, idAudio)
+                        cursor.execute(insertStatement)
 
                     elif stream_type == 6:
                         for child in stream:
@@ -113,12 +121,12 @@ for xml_name in (xml_list):
                                                         subtitle_type = int(subtitle.find('{http://www.streamanalyser.com/schema}subtitling_type').text,16)
                                                         print ('SUBTITLE LANGUAGE: ' + subtitle_language)
                                                         print ('SUBTITLE TYPE: ' + str(subtitle_type))
-                        insertStatement = "INSERT INTO Subtitles (Subtitles_Language) VALUES ({0})".format(subtitle_language)
-                        cursor.execute(insertStatement)
-                        idSubtitle +=1
-                        insertStatement = "INSERT INTO Stream (Elementary_PID, Stream_Type, Stream_Standard, PMT_idPMT, PMT_TS_identifierTS, Subtitles_idSubtitles) VALUES ({0}, {1}, {2}, {3}, {4}, {5})".format(elementary_PID, stream_type, component_tag, idPMT, idTS, idSubtitle)
-                        cursor.execute(insertStatement)
-                        idStream +=1
+                                                        idSubtitle +=1
+                                                        insertStatement = "INSERT INTO Subtitles (idSubtitles, Subtitles_Language) VALUES ({0}, '{1}')".format(idSubtitle, subtitle_language)
+                                                        cursor.execute(insertStatement)
+                                                        idStream +=1
+                                                        insertStatement = "INSERT INTO Stream (idStream, Elementary_PID, Stream_Type, Stream_Standard, PMT_idPMT, PMT_TS_identifierTS, Video_idVideo, Audio_idAudio, Subtitles_idSubtitles) VALUES ({0}, {1}, {2}, {3}, {4}, {5}, NULL, NULL, {6})".format(idStream, elementary_PID, stream_type, component_tag, idPMT, idTS, idSubtitle)
+                                                        cursor.execute(insertStatement)
 
                     print ('##### END STREAM #####')
             print ('########### END PMT ##########')
