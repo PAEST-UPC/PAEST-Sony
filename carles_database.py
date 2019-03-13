@@ -32,8 +32,15 @@ else:
 
 
 cursor.execute("SET SQL_SAFE_UPDATES=0;") #later we wont use it but for now its useful to avoid overwriting data
-cursor.execute("DELETE FROM PMT;")
-cursor.execute("DELETE FROM Video;")
+cursor.execute("SET FOREIGN_KEY_CHECKS = 0;")
+cursor.execute("TRUNCATE TABLE Video;")
+cursor.execute("TRUNCATE TABLE Audio;")
+cursor.execute("TRUNCATE TABLE Subtitles;")
+cursor.execute("TRUNCATE TABLE TS;")
+cursor.execute("TRUNCATE TABLE PMT;")
+cursor.execute("TRUNCATE TABLE Stream;")
+cursor.execute("SET FOREIGN_KEY_CHECKS = 1;")
+
 
 idTS = 0
 idPMT = 0
@@ -145,6 +152,38 @@ for xml_name in (xml_list):
         print ('########################## END TS ####################################')
 
 connection.commit()
+
+sql_select_Query = ("SELECT * FROM TS")
+cursor.execute(sql_select_Query)
+table = cursor.fetchall()
+for row in table:
+    print (row)
+sql_select_Query = ("SELECT * FROM PMT")
+cursor.execute(sql_select_Query)
+table = cursor.fetchall()
+for row in table:
+    print (row)
+sql_select_Query = ("SELECT * FROM Stream")
+cursor.execute(sql_select_Query)
+table = cursor.fetchall()
+for row in table:
+    print (row)
+sql_select_Query = ("SELECT * FROM Video")
+cursor.execute(sql_select_Query)
+table = cursor.fetchall()
+for row in table:
+    print (row)
+sql_select_Query = ("SELECT * FROM Audio")
+cursor.execute(sql_select_Query)
+table = cursor.fetchall()
+for row in table:
+    print (row)
+sql_select_Query = ("SELECT * FROM Subtitles")
+cursor.execute(sql_select_Query)
+table = cursor.fetchall()
+for row in table:
+    print (row)
+
 cursor.close()
 connection.close()
 print ('####### SCRIPT END ##########')
