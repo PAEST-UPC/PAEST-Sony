@@ -36,7 +36,7 @@ def obtainFilterDict():
 			column_name = row[1]
 			sqlQuery = "select distinct {0} from {1} order by {0}".format(column_name, table_name)
 			cursorObject.execute(sqlQuery)
-			options                = cursorObject.fetchall()
+			options = cursorObject.fetchall()
 			filterDict[(table_name,column_name)] = options 
 		
 		return filterDict
