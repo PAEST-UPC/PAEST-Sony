@@ -6,31 +6,19 @@ from functools import partial
 window=Tk()
 
 window.title("Searcher Window")
-# window.geometry('350x400') # Mida per defecte, si no es posa s'obre una finestra per a que es vegi tot
 rows=0
-lbl=Label(window, text="Els desplegables son: ")
+lbl=Label(window, text="Filter options: ")
 lbl.grid(column=0,row=rows)
 rows += 1
 
 def clearCBox(cbox):
-	
-	#inv_CBoxDict = {values: keys for keys, values in clearButtonDict.items()}
-	#(tableName,filterName) = invCBoxDict[]
 	cbox.set('')
 
 labelsDict = {}
 CBoxDict = {}
 clearButtonDict = {}
 
-#filterDict = obtainFilterDict()
-
-filterDict = {
-	("key1", "aux1") : ["value 1", "value 2", "value 3"],
-	("key2", "aux2") : ["value 1", "value 2", "value 3"],
-	("key3", "aux3") : ["value 1", "value 2", "value 3"],
-	("key4", "aux4") : ["value 1", "value 2", "value 3"]
-}
-
+filterDict = obtainFilterDict()
 
 for (tableName,filterName) in filterDict:
 	labelsDict[(tableName,filterName)] = Label(window, text=filterName)
@@ -38,11 +26,8 @@ for (tableName,filterName) in filterDict:
 	clearButtonDict[(tableName,filterName)] = Button(window, text='Clear', command=partial(clearCBox,CBoxDict[(tableName,filterName)]))
 
 	labelsDict[(tableName,filterName)].grid(column=0, row=rows, pady=5)
-	clearButtonDict[(tableName,filterName)].grid(column=2, row=rows, pady=5)
-	#not working
-	#CBoxList[rows] = 
 	CBoxDict[(tableName,filterName)].grid(column=1, row=rows, pady=5, padx=10)
-	############
+	clearButtonDict[(tableName,filterName)].grid(column=2, row=rows, pady=5)
 
 	rows += 1
 
@@ -53,11 +38,9 @@ def obtainSearchDict(CBoxDict):
 		if filterValue != '':
 			searchDict[(tableName,filterName)] = filterValue
 	return searchDict
-
-
 	
 
-def cerca():
+def search():
 	searchDict = obtainSearchDict(CBoxDict)
 	print(searchDict)
 	searchResult = querySearch(searchDict)
@@ -65,8 +48,7 @@ def cerca():
 	lbl4.grid(column=0, row=rows, pady=10)
 
 
-
-button2=Button(window, text="Cerca", command=cerca)
+button2=Button(window, text="Search", command=search)
 button2.grid(column=1, row=rows, pady=10)
 rows += 1
 window.mainloop()
