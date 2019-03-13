@@ -1,6 +1,7 @@
 from tkinter import *
 from tkinter.ttk import *
 from QueryModule import *
+from functools import partial
 
 window=Tk()
 
@@ -11,28 +12,35 @@ lbl=Label(window, text="Els desplegables son: ")
 lbl.grid(column=0,row=rows)
 rows += 1
 
-def clearCBox():
+def clearCBox(cbox):
 	
 	#inv_CBoxDict = {values: keys for keys, values in clearButtonDict.items()}
 	#(tableName,filterName) = invCBoxDict[]
-
 	cbox.set('')
 
 labelsDict = {}
 CBoxDict = {}
 clearButtonDict = {}
 
-filterDict = obtainFilterDict()
+#filterDict = obtainFilterDict()
+
+filterDict = {
+	("key1", "aux1") : ["value 1", "value 2", "value 3"],
+	("key2", "aux2") : ["value 1", "value 2", "value 3"],
+	("key3", "aux3") : ["value 1", "value 2", "value 3"],
+	("key4", "aux4") : ["value 1", "value 2", "value 3"]
+}
+
 
 for (tableName,filterName) in filterDict:
 	labelsDict[(tableName,filterName)] = Label(window, text=filterName)
 	CBoxDict[(tableName,filterName)] = Combobox(window,state="readonly", values=filterDict[(tableName,filterName)])
+	clearButtonDict[(tableName,filterName)] = Button(window, text='Clear', command=partial(clearCBox,CBoxDict[(tableName,filterName)]))
+
 	labelsDict[(tableName,filterName)].grid(column=0, row=rows, pady=5)
 	clearButtonDict[(tableName,filterName)].grid(column=2, row=rows, pady=5)
-	
 	#not working
-	CBoxList[rows] = 
-	clearButtonDict[(tableName,filterName)] = Button(window, text='Clear', command=clearCBox)
+	#CBoxList[rows] = 
 	CBoxDict[(tableName,filterName)].grid(column=1, row=rows, pady=5, padx=10)
 	############
 
