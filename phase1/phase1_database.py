@@ -90,7 +90,7 @@ for xml_name in (xml_list):
                     print ('elementary_PID: ' + str(elementary_PID))
                     print ('idPMT: ' + str(idPMT)) 
                     #find type of stream and insert the row in corresponent table and row in streams after that relating both
-                    if stream_type == 2:
+                    if stream_type == 2 or stream_type == 36:
                         print ('VIDEO STREAM')
                         #insert video table row
                         idVideo +=1

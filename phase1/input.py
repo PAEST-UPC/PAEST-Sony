@@ -48,7 +48,7 @@ for xml_name in (xml_list):
                     elementary_PID =  hex(int(stream.find('{http://www.streamanalyser.com/schema}elementary_PID').text,16))
                     print ('stream_type: ' + stream_type)
                     print ('elementary_PID: ' + elementary_PID)
-                    if stream_type == hex(2):
+                    if stream_type == hex(2) or stream_type == hex(36):
                         print ('VIDEO STREAM')
                         for streamIdDescriptor in stream.findall('{http://www.streamanalyser.com/schema}StreamIdentifierDescriptor'):
                                 component_tag = hex(int(streamIdDescriptor.find('{http://www.streamanalyser.com/schema}component_tag').text,16))
