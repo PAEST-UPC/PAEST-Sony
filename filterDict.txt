@@ -1,0 +1,1 @@
+{('Audio', 'Audio_Type'): (), ('Audio', 'Audio_Language'): (), ('PMT', 'PIDNumber'): (), ('Stream', 'Stream_Standard'): (), ('Stream', 'Stream_Type'): (), ('Stream', 'Elementary_PID'): (), ('Subtitles', 'Subtitles_Language'): (), ('TS', 'Recording_Date'): (), ('TS', 'Country_Code'): (), ('Video', 'Width'): (), ('Video', 'Height'): (), ('Video', 'Interlaced'): ()}
