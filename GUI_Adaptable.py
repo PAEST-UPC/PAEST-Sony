@@ -1,7 +1,8 @@
 from tkinter import *
 from tkinter.ttk import *
-from QueryModule import *
+#from QueryModule import *
 from functools import partial
+import ast
 
 window=Tk()
 
@@ -18,7 +19,9 @@ labelsDict = {}
 CBoxDict = {}
 clearButtonDict = {}
 
-filterDict = obtainFilterDict()
+filterDictString = open("filterDict.txt", "r").read()
+filterDict = ast.literal_eval(filterDictString)
+#filterDict = obtainFilterDict()
 
 #filterDict = {
 #	("key1", "aux1") : ["value 1", "value 2", "value 3"],
@@ -39,6 +42,9 @@ for (tableName,filterName) in filterDict:
 
 	rows += 1
 
+lbl4=Label(window, text='')
+lbl4.grid(column=0, row=rows, pady=10)
+
 def obtainSearchDict(CBoxDict):
 	searchDict = {}
 	for (tableName,filterName) in CBoxDict:
@@ -50,10 +56,8 @@ def obtainSearchDict(CBoxDict):
 
 def search():
 	searchDict = obtainSearchDict(CBoxDict)
-	print(searchDict)
 	searchResult = querySearch(searchDict)
-	lbl4=Label(window, text=str(searchResult))
-	lbl4.grid(column=0, row=rows, pady=10)
+	lbl4.config(text=str(searchResult))
 
 
 button2=Button(window, text="Search", command=search)

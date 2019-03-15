@@ -3,9 +3,9 @@ import pymysql
 
 # DB server variables
 dbServerName = "127.0.0.1"
-dbUser = "root"
-dbPassword = "1234"
-dbName = "sample"
+dbUser = "ubuntu"
+dbPassword = "paesa19"
+dbName = "dbTest"
 charSet = "utf8mb4"
 #cursorType = pymysql.cursors.DictCursor
 
@@ -20,7 +20,7 @@ def obtainFilterDict():
 
 	    # SQL query string
 		# Obtain all column names in employeesample table in format (table,name)
-		sqlQuery = "select table_name, column_name from information_schema.columns where table_name = 'employeesample' order by column_name"
+		sqlQuery = f"select table_name, column_name from information_schema.columns where table_schema = '{dbName}' order by column_name"
 
 	    # Execute the sqlQuery
 		cursorObject.execute(sqlQuery)
@@ -38,6 +38,48 @@ def obtainFilterDict():
 			cursorObject.execute(sqlQuery)
 			options = cursorObject.fetchall()
 			filterDict[(table_name,column_name)] = options 
+		
+		return filterDict
+
+	except Exception as e:
+
+		print("Exception occured:{}".format(e))
+
+	finally:
+
+		connectionObject.close()
+
+# This function returns a dictionary containing all the needed info to start the GUI from MultiTable DB
+def obtainFilterDictMT():
+	# Create a connection object
+	connectionObject = pymysql.connect(host=dbServerName, user=dbUser, password=dbPassword,
+	                                     db=dbName, charset=charSet)#,cursorclass=cursorType)
+	try:
+		# Create a cursor object
+		cursorObject = connectionObject.cursor()
+
+	    # SQL query string
+		# Obtain all column names in employeesample table in format (table,name)
+		sqlQuery = f"select table_name, column_name, column_key from information_schema.columns where table_schema = '{dbName}' order by table_name"
+
+	    # Execute the sqlQuery
+		cursorObject.execute(sqlQuery)
+
+		# Fetch all the rows
+		rows = cursorObject.fetchall()
+
+		# Create dictionary to store db info
+		# Tuple of (Table,Column) as key and list of distinct values for the column as value
+		filterDict = {}
+		for row in rows:
+			table_name = row[0]
+			column_name = row[1]
+			column_key = row[2]
+			if not column_key:
+				sqlQuery = "select distinct {0} from {1} order by {0}".format(column_name, table_name)
+				cursorObject.execute(sqlQuery)
+				options = cursorObject.fetchall()
+				filterDict[(table_name,column_name)] = options 
 		
 		return filterDict
 
@@ -92,3 +134,5 @@ def querySearch(searchDict):
 	finally:
 
 		connectionObject.close()
+
+print(obtainFilterDictMT())
