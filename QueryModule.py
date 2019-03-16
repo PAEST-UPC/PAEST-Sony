@@ -9,8 +9,9 @@ dbName = "searcherTest"
 charSet = "utf8mb4"
 #cursorType = pymysql.cursors.DictCursor
 
-# This function returns a dictionary containing all the needed info to start the GUI
-def obtainFilterDict():
+######## PRIVATE FUNCTIONS ########
+# Auxiliary private function that encapsulates queries to the DB
+def _queryDB(sqlQuery):
 	# Create a connection object
 	connectionObject = pymysql.connect(host=dbServerName, user=dbUser, password=dbPassword,
 	                                     db=dbName, charset=charSet)#,cursorclass=cursorType)
@@ -18,29 +19,12 @@ def obtainFilterDict():
 		# Create a cursor object
 		cursorObject = connectionObject.cursor()
 
-	    # SQL query string
-		# Obtain all column names in employeesample table in format (table,name)
-		sqlQuery = f"select table_name, column_name from information_schema.columns where table_schema = '{dbName}' order by column_name"
-
-	    # Execute the sqlQuery
+		# Execute the sqlQuery
 		cursorObject.execute(sqlQuery)
 
 		# Fetch all the rows
-		rows = cursorObject.fetchall()
-
-		# Create dictionary to store db info
-		# Tuple of (Table,Column) as key and list of distinct values for the column as value
-		filterDict = {}
-		for row in rows:
-			table_name = row[0]
-			column_name = row[1]
-			sqlQuery = "select distinct {0} from {1} order by {0}".format(column_name, table_name)
-			cursorObject.execute(sqlQuery)
-			options = cursorObject.fetchall()
-			filterDict[(table_name,column_name)] = options 
-		
-		return filterDict
-
+		return cursorObject.fetchall()
+	
 	except Exception as e:
 
 		print("Exception occured:{}".format(e))
@@ -48,91 +32,76 @@ def obtainFilterDict():
 	finally:
 
 		connectionObject.close()
+
+######## PUBLIC FUNCTIONS ########
+# This function returns a dictionary containing all the needed info to start the GUI
+def obtainFilterDict():
+	
+	# Obtain all column names in employeesample table in format (table,name)
+	sqlQuery = f"select table_name, column_name from information_schema.columns where table_schema = '{dbName}' order by column_name"
+
+    # Execute the sqlQuery and get answer in rows
+	rows = _queryDB(sqlQuery)
+
+	# Create dictionary to store db info
+	# Tuple of (Table,Column) as key and list of distinct values for the column as value
+	filterDict = {}
+	for row in rows:
+		table_name = row[0]
+		column_name = row[1]
+		sqlQuery = "select distinct {0} from {1} order by {0}".format(column_name, table_name)
+		filterDict[(table_name,column_name)] = _queryDB(sqlQuery) 
+	
+	return filterDict
+
 
 # This function returns a dictionary containing all the needed info to start the GUI from MultiTable DB
 def obtainFilterDictMT():
-	# Create a connection object
-	connectionObject = pymysql.connect(host=dbServerName, user=dbUser, password=dbPassword,
-	                                     db=dbName, charset=charSet)#,cursorclass=cursorType)
-	try:
-		# Create a cursor object
-		cursorObject = connectionObject.cursor()
+	
+	# Obtain all column names in employeesample table in format (table,name)
+	sqlQuery = f"select table_name, column_name, column_key from information_schema.columns where table_schema = '{dbName}' order by table_name"
 
-	    # SQL query string
-		# Obtain all column names in employeesample table in format (table,name)
-		sqlQuery = f"select table_name, column_name, column_key from information_schema.columns where table_schema = '{dbName}' order by table_name"
+    # Execute the sqlQuery and get answer in rows
+	rows = _queryDB(sqlQuery)
 
-	    # Execute the sqlQuery
-		cursorObject.execute(sqlQuery)
-
-		# Fetch all the rows
-		rows = cursorObject.fetchall()
-
-		# Create dictionary to store db info
-		# Tuple of (Table,Column) as key and list of distinct values for the column as value
-		filterDict = {}
-		for row in rows:
-			table_name = row[0]
-			column_name = row[1]
-			column_key = row[2]
-			if not column_key:
-				sqlQuery = "select distinct {0} from {1} order by {0}".format(column_name, table_name)
-				cursorObject.execute(sqlQuery)
-				options = cursorObject.fetchall()
-				filterDict[(table_name,column_name)] = options 
-		
-		return filterDict
-
-	except Exception as e:
-
-		print("Exception occured:{}".format(e))
-
-	finally:
-
-		connectionObject.close()
-
+	# Create dictionary to store db info
+	# Tuple of (Table,Column) as key and list of distinct values for the column as value
+	filterDict = {}
+	for row in rows:
+		table_name = row[0]
+		column_name = row[1]
+		column_key = row[2]
+		if not column_key:
+			sqlQuery = "select distinct {0} from {1} order by {0}".format(column_name, table_name)
+			filterDict[(table_name,column_name)] = _queryDB(sqlQuery)
+	
+	return filterDict
 
 
 def querySearch(searchDict):
 
-	# Create a connection object
-	connectionObject = pymysql.connect(host=dbServerName, user=dbUser, password=dbPassword,
-	                                     db=dbName, charset=charSet)#,cursorclass=cursorType)
-	try:
-		# Create a cursor object
-		cursorObject = connectionObject.cursor()
+	sqlQuery = ""
 
-		sqlQuery = ""
+	firstFlag = True
+	for table_name, column_name in searchDict:
 
-		firstFlag = True
-		for table_name, column_name in searchDict:
+		if searchDict[(table_name,column_name)].isdigit():
+			value = searchDict[(table_name,column_name)]
+		else:
+			value = "\'{0}\'".format(searchDict[(table_name,column_name)])
 
-			if searchDict[(table_name,column_name)].isdigit():
-				value = searchDict[(table_name,column_name)]
-			else:
-				value = "\'{0}\'".format(searchDict[(table_name,column_name)])
+		if firstFlag:
+			sqlQuery += "select * from {0} where {1}={2}".format(table_name,column_name,value)
+			firstFlag = False
+		else:
+			sqlQuery += " and {0}={1}".format(column_name,value)
 
-			if firstFlag:
-				sqlQuery += "select * from {0} where {1}={2}".format(table_name,column_name,value)
-				firstFlag = False
-			else:
-				sqlQuery += " and {0}={1}".format(column_name,value)
+	
+	 # Execute the sqlQuery and get answer in rows
+	print('Quering DB: ' + sqlQuery)
+	rows = _queryDB(sqlQuery)
 
-		# Execute the sqlQuery
-		print('Quering DB: ' + sqlQuery)
-		cursorObject.execute(sqlQuery)
+	return rows
 
-		# Fetch all the rows
-		rows = cursorObject.fetchall()
 
-		return rows
-
-	except Exception as e:
-
-		print("Exception occured:{}".format(e))
-
-	finally:
-
-		connectionObject.close()
-
-print(obtainFilterDictMT())
+#print(obtainFilterDictMT())

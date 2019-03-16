@@ -1,6 +1,6 @@
 from tkinter import *
 from tkinter.ttk import *
-#from QueryModule import *
+from QueryModule import *
 from functools import partial
 import ast
 
