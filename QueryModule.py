@@ -55,9 +55,7 @@ def obtainFilterDict():
 	# Create dictionary to store db info
 	# Tuple of (Table,Column) as key and list of distinct values for the column as value
 	filterDict = {}
-	for row in PKInfo:
-		table_name = row[0]
-		column_name = row[1]
+	for table_name, column_name, column_key in PKInfo:
 		sqlQuery = "select distinct {0} from {1} order by {0}".format(column_name, table_name)
 		filterDict[(table_name,column_name)] = _queryDB(sqlQuery) 
 	
@@ -73,10 +71,7 @@ def obtainFilterDictMT():
 	# Create dictionary to store db info
 	# Tuple of (Table,Column) as key and list of distinct values for the column as value
 	filterDict = {}
-	for row in PKInfo:
-		table_name = row[0]
-		column_name = row[1]
-		column_key = row[2]
+	for table_name, column_name, column_key in PKInfo:
 		if not column_key:
 			sqlQuery = "select distinct {0} from {1} order by {0}".format(column_name, table_name)
 			filterDict[(table_name,column_name)] = _queryDB(sqlQuery)
@@ -138,4 +133,4 @@ def querySearchMT(searchDict):
 	return rows
 
 
-#print(obtainFilterDictMT())
+print(obtainFilterDictMT())
