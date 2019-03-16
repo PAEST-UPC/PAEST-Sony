@@ -5,7 +5,7 @@ import pymysql
 dbServerName = "127.0.0.1"
 dbUser = "ubuntu"
 dbPassword = "paesa19"
-dbName = "dbTest"
+dbName = "searcherTest"
 charSet = "utf8mb4"
 #cursorType = pymysql.cursors.DictCursor
 
