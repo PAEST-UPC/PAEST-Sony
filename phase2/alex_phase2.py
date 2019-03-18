@@ -130,6 +130,36 @@ for xml_name in (xml_list):
 
 connection.commit()
 
+sql_select_Query = ("SELECT * FROM TS")
+cursor.execute(sql_select_Query)
+table = cursor.fetchall()
+for row in table:
+    print (row)
+sql_select_Query = ("SELECT * FROM PMT")
+cursor.execute(sql_select_Query)
+table = cursor.fetchall()
+for row in table:
+    print (row)
+sql_select_Query = ("SELECT * FROM Stream")
+cursor.execute(sql_select_Query)
+table = cursor.fetchall()
+for row in table:
+    print (row)
+sql_select_Query = ("SELECT * FROM Video")
+cursor.execute(sql_select_Query)
+table = cursor.fetchall()
+for row in table:
+    print (row)
+sql_select_Query = ("SELECT * FROM Audio")
+cursor.execute(sql_select_Query)
+table = cursor.fetchall()
+for row in table:
+    print (row)
+sql_select_Query = ("SELECT * FROM Subtitles")
+cursor.execute(sql_select_Query)
+table = cursor.fetchall()
+for row in table:
+    print (row)
 
 cursor.close()
 connection.close()
