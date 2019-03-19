@@ -1,0 +1,13 @@
+#!/bin/python
+import alex
+class Switch:
+	def switch(value):
+		#import alex
+		if(value == 2):
+			alex.counter += 1
+			print(alex.counter)
+		else:
+			print("default")
+
+
+

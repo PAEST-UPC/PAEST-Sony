@@ -1,0 +1,6 @@
+#! bin/python
+import sw.Switch as sw
+counter = 0
+sw.switch(2)
+print(counter)
+
