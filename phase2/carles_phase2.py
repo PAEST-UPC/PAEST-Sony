@@ -86,14 +86,27 @@ for xml_name in (xml_list):
                         component_tag = int(streamIdDescriptor.find(tag+'component_tag').text,16)
                     #find type of stream and insert the row in corresponent table and row in streams after that relating both
                     if stream_type == 2 or stream_type == 36:
-                        #insert video table row
+                        #code to insert video table row
+                        width=0
+                        height=0
+                        interlaced=0
+                        video_typename = 'not defined'
+                        
+                        for child in root:
+                            if child.tag == (tag+'Video'):
+                                for video in root.findall(tag+'Video'):
+                                    video_PID = int(video.find(tag+'PID').text,16)
+                                    if video_PID == elementary_PID:
+                                        video_service = int(video.find(tag+'Service').text,16)
+                                        video_typename = video.find(tag+'TypeName').text
+                                        video_type = int(video.find(tag+'Type').text,16)
+                                        for info in video.findall(tag+'Info'):
+                                            width = int(info.find(tag+'Width').text)
+                                            height = int(info.find(tag+'Height').text)
+                                            interlaced=int(info.find(tag+'Interlaced').text)
+                        # end test
                         idVideo +=1
-                        #####insert######
-                        W=50
-                        H=50
-                        I=1
-                        name = 'test'
-                        insert_Video(idVideo, W, H, I, name, cursor)                        
+                        insert_Video(idVideo, width, height, interlaced, video_typename, cursor)                        
                         idStream +=1
                         insert_Stream_Video(idStream, elementary_PID, stream_type, component_tag, idPMT, xml_name, idVideo, cursor)
                     elif stream_type == 3 or stream_type == 4:
@@ -129,7 +142,9 @@ for xml_name in (xml_list):
 
             #VIDEO SECTION
             for video in root.findall(tag+'Video'):
-                elementary_PID = int(video.find(tag+'PID').text,16)
+                video_PID = int(video.find(tag+'PID').text,16)
+                video_service = int(video.find(tag+'Service').text,16)
+                video_typename = video.find(tag+'TypeName').text
                 video_type = int(video.find(tag+'Type').text,16)
                 for info in video.findall(tag+'Info'):
                     width = int(info.find(tag+'Width').text)
