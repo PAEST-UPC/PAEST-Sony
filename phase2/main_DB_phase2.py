@@ -44,7 +44,7 @@ if (len(sys.argv)==2):
             print ("xml_already in DB")
         else:
             print ("Obtaining Data...")
-            idPMT = obtain_PMT(cursor) 
+            idPMT = obtain_PMT(cursor)
             idStream = obtain_Stream(cursor)
             idVideo = obtain_Video(cursor)
             idAudio = obtain_Audio(cursor)
@@ -53,6 +53,7 @@ if (len(sys.argv)==2):
             fullname = os.path.join(final_xml_path, xml_name)
             obtainData(fullname, xml_name, cursor, idPMT, idStream, idVideo, idAudio, idSubtitle, idTeletext)
             print ("Data obtained!")
+
             
     connection.commit()
     cursor.close()

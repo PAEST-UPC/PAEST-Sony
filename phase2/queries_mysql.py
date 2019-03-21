@@ -56,6 +56,14 @@ def obtain_PMT(cursor):
     cursor.execute(insertStatement)
     cursor.fetchall()
     rows = cursor.rowcount
+    if rows > 0:
+        insertStatement = "SELECT idPMT from PMT ORDER BY idPMT DESC LIMIT 1"
+        cursor.execute(insertStatement)
+        l = cursor.fetchall()
+        rows = str(l[0])
+        rows = rows.split("(")[1]
+        rows = rows.split(",")[0]
+        rows = int(rows)
     return rows
 
 def obtain_Stream(cursor):
@@ -63,6 +71,14 @@ def obtain_Stream(cursor):
     cursor.execute(insertStatement)
     cursor.fetchall()
     rows = cursor.rowcount
+    if rows > 0:
+        insertStatement = "SELECT idStream from Stream ORDER BY idStream DESC LIMIT 1"
+        cursor.execute(insertStatement)
+        l = cursor.fetchall()
+        rows = str(l[0])
+        rows = rows.split("(")[1]
+        rows = rows.split(",")[0]
+        rows = int(rows)
     return rows
 
 def obtain_Video(cursor):
@@ -70,6 +86,14 @@ def obtain_Video(cursor):
     cursor.execute(insertStatement)
     cursor.fetchall()
     rows = cursor.rowcount
+    if rows > 0:
+        insertStatement = "SELECT idVideo from Video ORDER BY idVideo DESC LIMIT 1"
+        cursor.execute(insertStatement)
+        l = cursor.fetchall()
+        rows = str(l[0])
+        rows = rows.split("(")[1]
+        rows = rows.split(",")[0]
+        rows = int(rows)
     return rows
 
 def obtain_Audio(cursor):
@@ -77,6 +101,14 @@ def obtain_Audio(cursor):
     cursor.execute(insertStatement)
     cursor.fetchall()
     rows = cursor.rowcount
+    if rows > 0:
+        insertStatement = "SELECT idAudio from Audio ORDER BY idAudio DESC LIMIT 1"
+        cursor.execute(insertStatement)
+        l = cursor.fetchall()
+        rows = str(l[0])
+        rows = rows.split("(")[1]
+        rows = rows.split(",")[0]
+        rows = int(rows)
     return rows
 
 def obtain_Subtitles(cursor):
@@ -84,6 +116,14 @@ def obtain_Subtitles(cursor):
     cursor.execute(insertStatement)
     cursor.fetchall()
     rows = cursor.rowcount
+    if rows > 0:
+        insertStatement = "SELECT idSubtitles from Subtitles ORDER BY idSubtitles DESC LIMIT 1"
+        cursor.execute(insertStatement)
+        l = cursor.fetchall()
+        rows = str(l[0])
+        rows = rows.split("(")[1]
+        rows = rows.split(",")[0]
+        rows = int(rows)
     return rows
 
 def obtain_Teletext(cursor):
@@ -91,6 +131,19 @@ def obtain_Teletext(cursor):
     cursor.execute(insertStatement)
     cursor.fetchall()
     rows = cursor.rowcount
+    if rows > 0:
+        insertStatement = "SELECT idTeletext from Teletext ORDER BY idTeletext DESC LIMIT 1"
+        cursor.execute(insertStatement)
+        l = cursor.fetchall()
+        rows = str(l[0])
+        rows = rows.split("(")[1]
+        rows = rows.split(",")[0]
+        rows = int(rows)
     return rows
 
-
+def db_is_empty (cursor):
+    insertStatement = "SELECT * from TS"
+    cursor.execute(insertStatement)
+    cursor.fetchall()
+    rows = cursor.rowcount
+    return rows
