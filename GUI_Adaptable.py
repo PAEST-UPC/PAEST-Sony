@@ -1,12 +1,26 @@
 from tkinter import *
 from tkinter.ttk import *
-from QueryModule import *
+#from QueryModule import *
 from functools import partial
 import ast
 
-window=Tk()
+root=Tk()
+myframe=Frame(root)
+myframe.pack()
 
-window.title("Searcher Window")
+canvas=Canvas(myframe)
+window=Frame(canvas,width=768, height=576)
+myscrollbar=Scrollbar(myframe,orient="vertical",command=canvas.yview)
+canvas.configure(yscrollcommand=myscrollbar.set)
+
+
+myscrollbar.pack(side="right",fill="y")
+canvas.pack(side="left")
+canvas.create_window((0,0),window=window,anchor='nw')
+window.bind("<Configure>")
+
+
+root.title("Searcher Window")
 rows=0
 lbl=Label(window, text="Filter options: ")
 lbl.grid(column=0,row=rows)
@@ -19,17 +33,8 @@ labelsDict = {}
 CBoxDict = {}
 clearButtonDict = {}
 
-filterDictString = open("filterDict.txt", "r").read()
-filterDict = ast.literal_eval(filterDictString)
+filterDict = ast.literal_eval(open("filterDict.txt", "r").read())
 #filterDict = obtainFilterDict()
-
-#filterDict = {
-#	("key1", "aux1") : ["value 1", "value 2", "value 3"],
-#	("key2", "aux2") : ["value 1", "value 2", "value 3"],
-#	("key3", "aux3") : ["value 1", "value 2", "value 3"],
-#	("key4", "aux4") : ["value 1", "value 2", "value 3"]
-#}
-
 
 for (tableName,filterName) in filterDict:
 	labelsDict[(tableName,filterName)] = Label(window, text=filterName)
@@ -41,6 +46,8 @@ for (tableName,filterName) in filterDict:
 	clearButtonDict[(tableName,filterName)].grid(column=2, row=rows, pady=5)
 
 	rows += 1
+
+canvas.configure(scrollregion=canvas.bbox("all"))
 
 lbl4=Label(window, text='')
 lbl4.grid(column=0, row=rows, pady=10)
@@ -63,4 +70,4 @@ def search():
 button2=Button(window, text="Search", command=search)
 button2.grid(column=1, row=rows, pady=10)
 rows += 1
-window.mainloop()
+root.mainloop()
