@@ -45,5 +45,52 @@ def insert_Teletext(idTeletext, teletext_language, cursor):
     insertStatement = "INSERT INTO Teletext (idTeletext, Teletext_Language) VALUES ({0}, '{1}')".format(idTeletext, teletext_language)
     cursor.execute(insertStatement)
 
+def obtain_TS(cursor):
+    insertStatement = "SELECT identifierTS from TS"
+    cursor.execute(insertStatement)
+    TSlist = cursor.fetchall()
+    return TSlist
+
+def obtain_PMT(cursor):
+    insertStatement = "SELECT * from PMT"
+    cursor.execute(insertStatement)
+    cursor.fetchall()
+    rows = cursor.rowcount
+    return rows
+
+def obtain_Stream(cursor):
+    insertStatement = "SELECT * from Stream"
+    cursor.execute(insertStatement)
+    cursor.fetchall()
+    rows = cursor.rowcount
+    return rows
+
+def obtain_Video(cursor):
+    insertStatement = "SELECT * from Video"
+    cursor.execute(insertStatement)
+    cursor.fetchall()
+    rows = cursor.rowcount
+    return rows
+
+def obtain_Audio(cursor):
+    insertStatement = "SELECT * from Audio"
+    cursor.execute(insertStatement)
+    cursor.fetchall()
+    rows = cursor.rowcount
+    return rows
+
+def obtain_Subtitles(cursor):
+    insertStatement = "SELECT * from Subtitles"
+    cursor.execute(insertStatement)
+    cursor.fetchall()
+    rows = cursor.rowcount
+    return rows
+
+def obtain_Teletext(cursor):
+    insertStatement = "SELECT * from Teletext"
+    cursor.execute(insertStatement)
+    cursor.fetchall()
+    rows = cursor.rowcount
+    return rows
 
 
