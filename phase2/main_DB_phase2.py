@@ -11,6 +11,8 @@ import numpy as np
 from mysql.connector import Error
 from queries_mysql import *
 from obtain_data import *
+from erase_TS import *
+
 
 final_xml_path = "/home/ubuntu/pae/xml/MergerTeam"
 
@@ -30,14 +32,9 @@ if (len(sys.argv)==2):
     else:
         print ('You are currently disconnected')
     
-    TS_list = []
-    TS_mysql_list = obtain_TS(cursor)
-    for name in TS_mysql_list:
-        name = str(name)
-        x = name.split("'")
-        TS_list.append(x[1])
-
+    TS_list = obtain_TS(cursor)
     xml_list = ls(final_xml_path)
+
     for xml_name in (xml_list):
         print (xml_name)
         if xml_name in TS_list:
@@ -53,8 +50,9 @@ if (len(sys.argv)==2):
             fullname = os.path.join(final_xml_path, xml_name)
             obtainData(fullname, xml_name, cursor, idPMT, idStream, idVideo, idAudio, idSubtitle, idTeletext)
             print ("Data obtained!")
+   
+    erase_old_TS (xml_list, cursor)
 
-            
     connection.commit()
     cursor.close()
     connection.close()

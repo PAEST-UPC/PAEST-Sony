@@ -48,8 +48,13 @@ def insert_Teletext(idTeletext, teletext_language, cursor):
 def obtain_TS(cursor):
     insertStatement = "SELECT identifierTS from TS"
     cursor.execute(insertStatement)
-    TSlist = cursor.fetchall()
-    return TSlist
+    TS_mysql_list = cursor.fetchall()
+    TS_list = []
+    for name in TS_mysql_list:
+        name = str(name)
+        x = name.split("'")
+        TS_list.append(x[1])
+    return TS_list
 
 def obtain_PMT(cursor):
     insertStatement = "SELECT * from PMT"
@@ -147,3 +152,129 @@ def db_is_empty (cursor):
     cursor.fetchall()
     rows = cursor.rowcount
     return rows
+
+
+def obtain_PMTs_fromTS (TS, cursor):
+    insertStatement = ("SELECT idPMT from PMT where identifierTS='" + TS + "'")
+    cursor.execute(insertStatement)
+    l = cursor.fetchall()
+    PMT_list = []
+    if len(l) > 0:
+        for name in l:
+            name = str(name)
+            x = name.split("(")
+            x = x[1].split(",")
+            PMT_list.append(int(x[0]))
+    return PMT_list
+
+def obtain_Streams_fromTS (TS, cursor):
+    insertStatement = ("SELECT idStream from Stream where identifierTS='" + TS + "'")
+    cursor.execute(insertStatement)
+    l = cursor.fetchall()
+    Stream_list = []
+    if len(l) > 0:
+        for name in l:
+            name = str(name)
+            x = name.split("(")
+            x = x[1].split(",")
+            Stream_list.append(int(x[0]))
+    return Stream_list
+
+def obtain_Videos_fromTS (TS, cursor):
+    insertStatement = ("SELECT idVideo from Stream where identifierTS='" + TS + "'")
+    cursor.execute(insertStatement)
+    l = cursor.fetchall()
+    Video_list = []
+    if len(l) > 0:
+        for name in l:
+            name = str(name)
+            x = name.split("(")
+            x = x[1].split(",")
+            if x[0]!='None':
+                Video_list.append(int(x[0]))
+    return Video_list
+
+def obtain_Audios_fromTS (TS, cursor):
+    insertStatement = ("SELECT idAudio from Stream where identifierTS='" + TS + "'")
+    cursor.execute(insertStatement)
+    l = cursor.fetchall()
+    Audio_list = []
+    if len(l) > 0:
+        for name in l:
+            name = str(name)
+            x = name.split("(")
+            x = x[1].split(",")
+            if x[0]!='None':
+                Audio_list.append(int(x[0]))
+    return Audio_list
+
+def obtain_Subtitles_fromTS (TS, cursor):
+    insertStatement = ("SELECT idSubtitles from Stream where identifierTS='" + TS + "'")
+    cursor.execute(insertStatement)
+    l = cursor.fetchall()
+    Subtitles_list = []
+    if len(l) > 0:
+        for name in l:
+            name = str(name)
+            x = name.split("(")
+            x = x[1].split(",")
+            if x[0]!='None':
+                Subtitles_list.append(int(x[0]))
+    return Subtitles_list
+
+def obtain_Teletext_fromTS (TS, cursor):
+    insertStatement = ("SELECT idTeletext from Stream where identifierTS='" + TS + "'")
+    cursor.execute(insertStatement)
+    l = cursor.fetchall()
+    Teletext_list = []
+    if len(l) > 0:
+        for name in l:
+            name = str(name)
+            x = name.split("(")
+            x = x[1].split(",")
+            if x[0]!='None':
+                Teletext_list.append(int(x[0]))
+    return Teletext_list
+
+def delete_TS (TS, cursor):
+    cursor.execute("SET FOREIGN_KEY_CHECKS = 0;")
+    insertStatement = ("DELETE from TS where identifierTS='" + TS + "'")
+    cursor.execute(insertStatement)
+    cursor.execute("SET FOREIGN_KEY_CHECKS = 1;")
+
+def delete_PMT (idNum, cursor):
+    cursor.execute("SET FOREIGN_KEY_CHECKS = 0;")
+    insertStatement = ("DELETE from PMT where idPMT=" + str(idNum))
+    cursor.execute(insertStatement)
+    cursor.execute("SET FOREIGN_KEY_CHECKS = 1;")
+
+def delete_Stream (idNum, cursor):
+    cursor.execute("SET FOREIGN_KEY_CHECKS = 0;")
+    insertStatement = ("DELETE from Stream where idStream=" + str(idNum))
+    cursor.execute(insertStatement)
+    cursor.execute("SET FOREIGN_KEY_CHECKS = 1;")
+
+def delete_Video (idNum, cursor):
+    cursor.execute("SET FOREIGN_KEY_CHECKS = 0;")
+    insertStatement = ("DELETE from Video where idVideo=" + str(idNum))
+    cursor.execute(insertStatement)
+    cursor.execute("SET FOREIGN_KEY_CHECKS = 1;")
+
+def delete_Audio (idNum, cursor):
+    cursor.execute("SET FOREIGN_KEY_CHECKS = 0;")
+    insertStatement = ("DELETE from Audio where idAudio=" + str(idNum))
+    cursor.execute(insertStatement)
+    cursor.execute("SET FOREIGN_KEY_CHECKS = 1;")
+
+def delete_Subtitle (idNum, cursor):
+    cursor.execute("SET FOREIGN_KEY_CHECKS = 0;")
+    insertStatement = ("DELETE from Subtitles where idSubtitles=" + str(idNum))
+    cursor.execute(insertStatement)
+    cursor.execute("SET FOREIGN_KEY_CHECKS = 1;")
+
+def delete_Teletext (idNum, cursor):
+    cursor.execute("SET FOREIGN_KEY_CHECKS = 0;")
+    insertStatement = ("DELETE from Teletext where idTeletext=" + str(idNum))
+    cursor.execute(insertStatement)
+    cursor.execute("SET FOREIGN_KEY_CHECKS = 1;")
+
