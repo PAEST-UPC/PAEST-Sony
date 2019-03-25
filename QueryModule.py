@@ -7,6 +7,11 @@ dbUser = "ubuntu"
 dbPassword = "paesa19"
 dbName = "searcherTest"
 charSet = "utf8mb4"
+#dbServerName = "127.0.0.1"
+#dbUser = "root"
+#dbPassword = "1234"
+#dbName = "test"
+#charSet = "utf8mb4"
 #cursorType = pymysql.cursors.DictCursor
 
 ######## PRIVATE FUNCTIONS ########
@@ -105,30 +110,34 @@ def querySearch(searchDict):
 	return rows
 
 def querySearchMT(searchDict):
+	if not searchDict:
+		return 'Select something'
+	else:
+		sqlQuery = "select identifierTS from PMT where"
+		firstFlag = True
+		for table_name, column_name in searchDict:
+			if not firstFlag:
+				sqlQuery += " AND "
+			
+			if searchDict[(table_name,column_name)].isdigit():
+				value = searchDict[(table_name,column_name)]
+			else:
+				value = "\'{0}\'".format(searchDict[(table_name,column_name)])
 
-	# Obtain PKInfo()
-	PKInfo = _obtainPKInfo()
-
-	sqlQuery = ""
-
-	firstFlag = True
-	for table_name, column_name in searchDict:
-
-		if searchDict[(table_name,column_name)].isdigit():
-			value = searchDict[(table_name,column_name)]
-		else:
-			value = "\'{0}\'".format(searchDict[(table_name,column_name)])
-
-		if firstFlag:
-			sqlQuery += "select * from {0} where {1}={2}".format(table_name,column_name,value)
-			firstFlag = False
-		else:
-			sqlQuery += " and {0}={1}".format(column_name,value)
+			if table_name == 'TS':
+				sqlQuery += f"identifierTS IN (SELECT identifierTS from PMT NATURAL JOIN TS WHERE {column_name}={value})"
+			elif table_name == 'PMT':
+				sqlQuery += f"{column_name}={value}"
+			elif table_name == 'Stream':
+				sqlQuery += f"idPMT IN (SELECT idPMT from Stream where {column_name}={value})"
+			else:
+				sqlQuery += f"idPMT IN (SELECT idPMT from Stream NATURAL JOIN {table_name} where {column_name}={value})"
 
 	
-	 # Execute the sqlQuery and get answer in rows
+	# Execute the sqlQuery and get answer in rows
 	print('Quering DB: ' + sqlQuery)
-	rows = _queryDB(sqlQuery)
+	rows = "prova"
+	#rows = _queryDB(sqlQuery)
 
 	return rows
 

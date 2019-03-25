@@ -1,6 +1,6 @@
 from tkinter import *
 from tkinter.ttk import *
-#from QueryModule import *
+from QueryModule import *
 from functools import partial
 import ast
 
@@ -9,7 +9,7 @@ myframe=Frame(root)
 myframe.pack()
 
 canvas=Canvas(myframe)
-window=Frame(canvas,width=768, height=576)
+window=Frame(canvas,width=768, height=1000)
 myscrollbar=Scrollbar(myframe,orient="vertical",command=canvas.yview)
 canvas.configure(yscrollcommand=myscrollbar.set)
 
@@ -33,8 +33,8 @@ labelsDict = {}
 CBoxDict = {}
 clearButtonDict = {}
 
-filterDict = ast.literal_eval(open("filterDict.txt", "r").read())
-#filterDict = obtainFilterDict()
+#filterDict = ast.literal_eval(open("filterDict2.txt", "r").read())
+filterDict = obtainFilterDict()
 
 for (tableName,filterName) in filterDict:
 	labelsDict[(tableName,filterName)] = Label(window, text=filterName)
