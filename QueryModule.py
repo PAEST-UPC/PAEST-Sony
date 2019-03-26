@@ -113,7 +113,7 @@ def querySearchMT(searchDict):
 	if not searchDict:
 		return 'Select something'
 	else:
-		sqlQuery = "select identifierTS from PMT where"
+		sqlQuery = "select identifierTS from PMT where "
 		firstFlag = True
 		for table_name, column_name in searchDict:
 			if not firstFlag:
@@ -136,10 +136,8 @@ def querySearchMT(searchDict):
 	
 	# Execute the sqlQuery and get answer in rows
 	print('Quering DB: ' + sqlQuery)
-	rows = "prova"
-	#rows = _queryDB(sqlQuery)
+	#rows = "prova"
+	rows = _queryDB(sqlQuery)
+	print(rows)
 
 	return rows
-
-
-print(obtainFilterDictMT())

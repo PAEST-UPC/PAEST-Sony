@@ -1,15 +1,15 @@
 from tkinter import *
 from tkinter.ttk import *
-#from QueryModule import *
+from QueryModule import *
 from functools import partial
 import ast
 
 root=Tk()
 myframe=Frame(root)
-myframe.pack(expand = True) #Expandeix el primer frame
+myframe.pack()#expand = True) #Expandeix el primer frame
 
 canvas=Canvas(myframe)
-window=Frame(canvas,width=768, height=2000)
+window=Frame(canvas,width=768, height=1200)
 myscrollbar=Scrollbar(myframe,orient="vertical",command=canvas.yview)
 canvas.configure(yscrollcommand=myscrollbar.set)
 
@@ -18,7 +18,7 @@ myscrollbar.pack(side="right",fill="y")
 canvas.pack(side="left",expand = True) #Expandeix el canvas
 canvas.create_window((0,0),window=window,anchor='nw')
 window.bind("<Configure>")
-window.pack(expand = True) #Expandeix la llista pero es carrega la scrollbar!!
+#window.pack()#expand = True) #Expandeix la llista pero es carrega la scrollbar!!
 
 
 root.title("Searcher Window")
@@ -34,8 +34,8 @@ labelsDict = {}
 CBoxDict = {}
 clearButtonDict = {}
 
-filterDict = ast.literal_eval(open("filterDict2.txt", "r").read())
-#filterDict = obtainFilterDict()
+#filterDict = ast.literal_eval(open("filterDict2.txt", "r").read())
+filterDict = obtainFilterDictMT()
 
 for (tableName,filterName) in filterDict:
 	labelsDict[(tableName,filterName)] = Label(window, text=filterName)
@@ -63,9 +63,9 @@ def obtainSearchDict(CBoxDict):
 	
 
 def search():
-#	searchDict = obtainSearchDict(CBoxDict)
-#	searchResult = querySearch(searchDict)
-	lbl4.config(text=str(searchResult))
+	searchDict = obtainSearchDict(CBoxDict)
+	searchResult = querySearchMT(searchDict)
+#	lbl4.config(text=str(searchResult))
 
 
 button2=Button(window, text="Search", command=search)
