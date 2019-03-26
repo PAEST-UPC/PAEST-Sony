@@ -132,7 +132,7 @@ def querySearchMT(searchDict):
 				sqlQuery += f"idPMT IN (SELECT idPMT from Stream where {column_name}={value})"
 			else:
 				sqlQuery += f"idPMT IN (SELECT idPMT from Stream NATURAL JOIN {table_name} where {column_name}={value})"
-
+			firstFlag = False
 	
 	# Execute the sqlQuery and get answer in rows
 	print('Quering DB: ' + sqlQuery)
