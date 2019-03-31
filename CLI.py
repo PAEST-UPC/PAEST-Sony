@@ -9,7 +9,7 @@ def parseArguments(filterDict):
 	searchDict = {}
 	parser = argparse.ArgumentParser(description='Search for TS that match a criteria')
 	for table_name, column_name in filterDict:
-		parser.add_argument('--'+column_name, help='filter by '+column_name)
+		parser.add_argument('--'+column_name)#, help=f'Filter by {column_name}. Current available options: {filterDict[(table_name,column_name)]}')
 		
 	args = vars(parser.parse_args())
 	for table_name, column_name in filterDict:
