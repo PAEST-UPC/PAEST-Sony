@@ -12,6 +12,7 @@ from mysql.connector import Error
 from queries_mysql import *
 from obtain_data import *
 from erase_TS import *
+import constants as cte
 
 
 final_xml_path = "/home/ubuntu/pae/xml/MergerTeam"
@@ -47,8 +48,10 @@ if (len(sys.argv)==2):
             idAudio = obtain_Audio(cursor)
             idSubtitle = obtain_Subtitles(cursor)
             idTeletext = obtain_Teletext(cursor)
+            idPrivate = obtain_Private(cursor)
+            idURL = obtain_URL(cursor)
             fullname = os.path.join(final_xml_path, xml_name)
-            obtainData(fullname, xml_name, cursor, idPMT, idStream, idVideo, idAudio, idSubtitle, idTeletext)
+            obtainData(fullname, xml_name, cursor, idPMT, idStream, idVideo, idAudio, idSubtitle, idTeletext, idPrivate, idURL)
             print ("Data obtained!")
    
     erase_old_TS (xml_list, cursor)
