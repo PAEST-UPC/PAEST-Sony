@@ -6,6 +6,7 @@ dbServerName = "127.0.0.1"
 dbUser = "ubuntu"
 dbPassword = "paesa19"
 dbName = "searcherTest"
+dictdbName = "dictionary"
 charSet = "utf8mb4"
 #dbServerName = "127.0.0.1"
 #dbUser = "root"
@@ -17,7 +18,7 @@ charSet = "utf8mb4"
 ######## PRIVATE FUNCTIONS ########
 
 # Auxiliary private function that encapsulates queries to the DB
-def _queryDB(sqlQuery):
+def _queryDB(sqlQuery,dbName):
 	# Create a connection object
 	connectionObject = pymysql.connect(host=dbServerName, user=dbUser, password=dbPassword,
 	                                     db=dbName, charset=charSet)#,cursorclass=cursorType)
@@ -47,7 +48,7 @@ def _obtainPKInfo():
 	sqlQuery = f"select table_name, column_name, column_key from information_schema.columns where table_schema = '{dbName}' order by table_name"
 
     # Execute the sqlQuery and get answer
-	return _queryDB(sqlQuery)
+	return _queryDB(sqlQuery,dbName)
 
 ######## PUBLIC FUNCTIONS ########
 
@@ -62,10 +63,31 @@ def obtainFilterDict():
 	filterDict = {}
 	for table_name, column_name, column_key in PKInfo:
 		sqlQuery = "select distinct {0} from {1} order by {0}".format(column_name, table_name)
-		filterDict[(table_name,column_name)] = _queryDB(sqlQuery) 
+		filterDict[(table_name,column_name)] = _queryDB(sqlQuery,dbName) 
 	
 	return filterDict
 
+def obtainConversionDict():
+	conversionDict = {}
+
+	# Obtain table_name, column_name, value_name, UserFriendly_value of all columns in DB
+	sqlQuery = f"select type, var_obtained, value, meaning from Dictionary"
+	rows = _queryDB(sqlQuery,dictdbName)
+	for table_name, column_name, value_name, userFriendly_value in rows:
+		conversionDict[(table_name,column_name,value_name)] = userFriendly_value
+
+	return conversionDict
+
+def obtainInvConversionDict():
+	invConversionDict = {}
+
+	# Obtain table_name, column_name, value_name, UserFriendly_value of all columns in DB
+	sqlQuery = f"select type, var_obtained, value, meaning from Dictionary"
+	rows = _queryDB(sqlQuery,dictdbName)
+	for table_name, column_name, value_name, userFriendly_value in rows:
+		invConversionDict[userFriendly_value] = value_name
+
+	return invConversionDict
 
 # This function returns a dictionary containing all the needed info to start the GUI from MultiTable DB
 def obtainFilterDictMT():
@@ -79,7 +101,7 @@ def obtainFilterDictMT():
 	for table_name, column_name, column_key in PKInfo:
 		if not column_key:
 			sqlQuery = "select distinct {0} from {1} order by {0}".format(column_name, table_name)
-			filterDict[(table_name,column_name)] = _queryDB(sqlQuery)
+			filterDict[(table_name,column_name)] = _queryDB(sqlQuery,dbName)
 	
 	return filterDict
 
@@ -105,7 +127,7 @@ def querySearch(searchDict):
 	
 	 # Execute the sqlQuery and get answer in rows
 	print('Quering DB: ' + sqlQuery)
-	rows = _queryDB(sqlQuery)
+	rows = _queryDB(sqlQuery,dbName)
 
 	return rows
 
@@ -137,7 +159,10 @@ def querySearchMT(searchDict):
 	# Execute the sqlQuery and get answer in rows
 	print('Quering DB: ' + sqlQuery)
 	#rows = "prova"
-	rows = _queryDB(sqlQuery)
+	rows = _queryDB(sqlQuery,dbName)
 	print(rows)
 
 	return rows
+
+if __name__ == "__main__":
+	print(obtainConversionDict())

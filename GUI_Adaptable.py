@@ -36,10 +36,22 @@ clearButtonDict = {}
 
 #filterDict = ast.literal_eval(open("filterDict2.txt", "r").read())
 filterDict = obtainFilterDictMT()
+conversionDict = obtainConversionDict()
+invConversionDict = obtainInvConversionDict()
 
 for (tableName,filterName) in filterDict:
 	labelsDict[(tableName,filterName)] = Label(window, text=filterName)
-	CBoxDict[(tableName,filterName)] = Combobox(window,state="readonly", values=filterDict[(tableName,filterName)])
+	values = []
+	for value in filterDict[(tableName,filterName)]:
+		print(tableName,filterName,value)
+		######################
+		# value surt (value,)
+		if (tableName,filterName,value) in conversionDict: 
+			values.append(conversionDict[(tableName,filterName,value)])
+		else:
+			values.append(value)
+	
+	CBoxDict[(tableName,filterName)] = Combobox(window,state="readonly", values=values)
 	clearButtonDict[(tableName,filterName)] = Button(window, text='Clear', command=partial(clearCBox,CBoxDict[(tableName,filterName)]))
 
 	labelsDict[(tableName,filterName)].grid(column=0, row=rows, pady=5)
@@ -56,9 +68,10 @@ lbl4.grid(column=0, row=rows, pady=10)
 def obtainSearchDict(CBoxDict):
 	searchDict = {}
 	for (tableName,filterName) in CBoxDict:
+
 		filterValue = CBoxDict[(tableName,filterName)].get()
 		if filterValue != '':
-			searchDict[(tableName,filterName)] = filterValue
+			searchDict[(tableName,filterName)] = invConversionDict[filterValue]
 	return searchDict
 	
 
