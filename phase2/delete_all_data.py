@@ -19,6 +19,8 @@ if (len(sys.argv)==2):
         cursor.execute("TRUNCATE TABLE Audio;")
         cursor.execute("TRUNCATE TABLE Subtitles;")
         cursor.execute("TRUNCATE TABLE Teletext;")
+        cursor.execute("TRUNCATE TABLE URL;")
+        cursor.execute("TRUNCATE TABLE Private;")
         cursor.execute("TRUNCATE TABLE TS;")
         cursor.execute("TRUNCATE TABLE PMT;")
         cursor.execute("TRUNCATE TABLE Stream;")

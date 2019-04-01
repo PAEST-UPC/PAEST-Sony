@@ -50,7 +50,7 @@ def insert_Teletext(idTeletext, teletext_language, cursor):
     cursor.execute(insertStatement)
 
 def insert_Private(idPrivate, standard, cursor):
-    insertStatement = "INSERT INTO Private (idPrivate, Standard) VALUES ({0}, '{1}')".format(idPrivate, standard)
+    insertStatement = "INSERT INTO Private (idPrivate, HBBT) VALUES ({0}, {1})".format(idPrivate, standard)
     cursor.execute(insertStatement)
 
 def insert_URL(idURL, url, idPrivate, cursor):

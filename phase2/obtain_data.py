@@ -72,11 +72,22 @@ def obtainData (fullname, xml_name, cursor, idPMT, idStream, idVideo, idAudio, i
                                         width = int(info.find(tag+'Width').text)
                                         height = int(info.find(tag+'Height').text)
                                         interlaced=int(info.find(tag+'Interlaced').text)
-                    #OBTINING NEW PARAMETERS OF VIDEO 
-                    bit_rate_mode = "TO DO"
+                    #OBTINING NEW PARAMETERS OF VIDEO
+                    bit_rate_mode = "not included"
                     pixel_aspect_ratio = 0
                     display_aspect_ratio = 0
                     frame_rate = 0
+                    for parserInfo in root.findall(tag+'ParserInfo'):
+                        for vids in parserInfo.findall(tag+'Videos'):
+                            for vid in vids.findall(tag+'Video'):
+                                identifierVid = int(vid.find(tag+'ID').text)
+                                if elementary_PID == identifierVid:
+                                    width = int(vid.find(tag+'Width').text)
+                                    height = int(vid.find(tag+'Height').text)
+                                    bit_rate_mode = vid.find(tag+'BitRate_Mode').text
+                                    pixel_aspect_ratio = float(vid.find(tag+'PixelAspectRatio').text)
+                                    display_aspect_ratio = float(vid.find(tag+'DisplayAspectRatio').text)
+                                    frame_rate = float(vid.find(tag+'FrameRate').text)
                     idVideo +=1
                     insert_Video(idVideo, width, height, interlaced, video_typename, bit_rate_mode, pixel_aspect_ratio, display_aspect_ratio, frame_rate, cursor)
                     idStream +=1
@@ -90,10 +101,19 @@ def obtainData (fullname, xml_name, cursor, idPMT, idStream, idVideo, idAudio, i
                                     audio_language = language.find(tag+'ISO_639_language_code').text
                                     audio_type = int(language.find(tag+'audio_type').text,16)
                     #OBTAINING NEW PARAMETERS OF AUDIO
-                    bit_rate_mode = "TO DO"
+                    bit_rate_mode = "not defined"
                     bit_rate = 0
-                    channels = "TO DO"
+                    channels = "not defined"
                     frame_rate = 0
+                    for parserInfo in root.findall(tag+'ParserInfo'):
+                        for auds in parserInfo.findall(tag+'Audios'):
+                            for aud in auds.findall(tag+'Audio'):
+                                identifierVid = int(aud.find(tag+'ID').text)
+                                if elementary_PID == identifierVid:
+                                    bit_rate_mode = aud.find(tag+'BitRate_Mode').text
+                                    bit_rate = float(aud.find(tag+'BitRate').text)
+                                    channels = aud.find(tag+'Channels').text
+                                    frame_rate = float(aud.find(tag+'FrameRate').text)
                     idAudio +=1
                     insert_Audio(idAudio, audio_type, audio_language, bit_rate_mode, bit_rate, channels, frame_rate, cursor)
                     idStream +=1
@@ -121,15 +141,30 @@ def obtainData (fullname, xml_name, cursor, idPMT, idStream, idVideo, idAudio, i
                                                     insert_Stream_Teletext(idStream, elementary_PID, stream_type, component_tag, idPMT, xml_name, idTeletext, cursor)
                 elif stream_type == cte.PRIVATE:
                     #PRIVATE SECTION
-                    for child in stream:
-                        #OBTAINING DATA FROM PRIVATE
-                        private_standard = "TO DO"
-                        idPrivate +=1
-                        insert_Private(idPrivate, private_standard, cursor)
-                        #OBTAIN ALL THE URL ASSIGNED TO THIS PRIVATE
-                        url = "TO DO"
-                        idURL +=1
-                        insert_URL(idURL, url, idPrivate, cursor)
-                        #at the end we insert the corresponding stream
-                        idStream +=1
-                        insert_Stream_Private(idStream, elementary_PID, stream_type, component_tag, idPMT, xml_name, idPrivate, cursor)
+                    private_standard = 0
+                    #OBTAINING DATA FROM PRIVATE
+                    for child in root:
+                        if child.tag == (tag+'AIT'):
+                            for ait in root.findall(tag+'AIT'):
+                                private_pid = int(ait.find(tag+'PID').text,16)
+                                if private_pid == elementary_PID:
+                                    private_standard = 1
+                    idPrivate +=1
+                    insert_Private(idPrivate, private_standard, cursor)
+                    for child in root:
+                        if child.tag == (tag+'AIT'):
+                            for ait in root.findall(tag+'AIT'):
+                                private_pid = int(ait.find(tag+'PID').text,16)
+                                if private_pid == elementary_PID:
+                                    for apps in ait.findall(tag+'Applications'):
+                                        for app in apps.findall(tag+'Application'):
+                                            for transportDescriptor in app.findall(tag+'TransportProtocolDescriptor'):
+                                                for urls in transportDescriptor.findall(tag+'URLs'):
+                                                    for urlFinal in urls.findall(tag+'URL'):
+                                                        for urlList in  urlFinal.findall(tag+'URLBase'):
+                                                            url = urlList.text
+                                                            idURL +=1
+                                                            print (url)
+                                                            insert_URL(idURL, url, idPrivate, cursor)
+                    idStream +=1
+                    insert_Stream_Private(idStream, elementary_PID, stream_type, component_tag, idPMT, xml_name, idPrivate, cursor)
