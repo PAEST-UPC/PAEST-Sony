@@ -24,5 +24,6 @@ def parseArguments(filterDict):
 
 #filterDict = ast.literal_eval(open("filterDict2.txt", "r").read())
 filterDict = obtainFilterDictMT()
+invConversionDict = obtainInvConversionDict()
 searchDict = parseArguments(filterDict)
 searchResult = querySearchMT(searchDict)

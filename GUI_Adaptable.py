@@ -42,14 +42,12 @@ invConversionDict = obtainInvConversionDict()
 for (tableName,filterName) in filterDict:
 	labelsDict[(tableName,filterName)] = Label(window, text=filterName)
 	values = []
-	for value in filterDict[(tableName,filterName)]:
-		print(tableName,filterName,value)
-		######################
-		# value surt (value,)
-		if (tableName,filterName,value) in conversionDict: 
-			values.append(conversionDict[(tableName,filterName,value)])
-		else:
-			values.append(value)
+	for tupled_value in filterDict[(tableName,filterName)]:
+		for value in tupled_value:
+			if (tableName,filterName,value) in conversionDict: 
+				values.append(conversionDict[(tableName,filterName,value)])
+			else:
+				values.append(value)
 	
 	CBoxDict[(tableName,filterName)] = Combobox(window,state="readonly", values=values)
 	clearButtonDict[(tableName,filterName)] = Button(window, text='Clear', command=partial(clearCBox,CBoxDict[(tableName,filterName)]))
@@ -71,7 +69,11 @@ def obtainSearchDict(CBoxDict):
 
 		filterValue = CBoxDict[(tableName,filterName)].get()
 		if filterValue != '':
-			searchDict[(tableName,filterName)] = invConversionDict[filterValue]
+			if filterValue in invConversionDict:
+				searchDict[(tableName,filterName)] = invConversionDict[filterValue]
+			else:
+				searchDict[(tableName,filterName)] = filterValue
+
 	return searchDict
 	
 
