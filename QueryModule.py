@@ -22,6 +22,7 @@ def _queryDB(sqlQuery,dbName):
 		cursorObject = connectionObject.cursor()
 
 		# Execute the sqlQuery
+		print('Quering DB: ' + sqlQuery)
 		cursorObject.execute(sqlQuery)
 
 		# Fetch all the rows
@@ -121,7 +122,6 @@ def querySearch(searchDict):
 
 	
 	 # Execute the sqlQuery and get answer in rows
-	print('Quering DB: ' + sqlQuery)
 	rows = _queryDB(sqlQuery,dbName)
 
 	return rows
@@ -156,29 +156,25 @@ def querySearchMT(searchDict, urlsFlag=False):
 			firstFlag = False
 
 	if urlsFlag:
-		#sqlQuery = f"SELECT URL FROM Private NATURAL JOIN URL WHERE idPrivate IN (SELECT idPrivate FROM Private NATURAL JOIN Stream WHERE idPMT IN ({sqlQuery}) AND HBBT=1)"
 		sqlQuery = f"SELECT identifierTS, PIDNumber, URL FROM PMT NATURAL JOIN (Stream NATURAL JOIN (Private NATURAL JOIN URL)) WHERE idPMT IN ({sqlQuery}) AND HBBT=1"
 
 
 	# Execute the sqlQuery and get answer in rows
-	print('Quering DB: ' + sqlQuery)
 	rows = _queryDB(sqlQuery,dbName)
 	
+	# Create dictionary to store result info
 	resultDict = {}
 
+	# Dictionary format with urls: resultDict[identifierTS][PIDNumber] = [url1,url2,...]
 	if urlsFlag:
-		#URL_List = []
-		#for URL_tuple in rows:
-		#	for URL in URL_tuple:
-		#		URL_List.append(URL)
-		#return URL_List
 		for identifierTS, PIDNumber, URL in rows:
 			if identifierTS not in resultDict:
 				resultDict[identifierTS] = {}
 			if hex(PIDNumber).upper() not in resultDict[identifierTS]:
 				resultDict[identifierTS][hex(PIDNumber).upper()] = []
 			resultDict[identifierTS][hex(PIDNumber).upper()].append(URL)
-		#return URL_List
+	
+	# Dictionary format without urls: resultDict[identifierTS] = [PIDNumber1,PIDNumber2,...]
 	else:
 		for identifierTS, PIDNumber in rows:
 			if identifierTS not in resultDict:
