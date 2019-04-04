@@ -5,7 +5,7 @@ import ast
 
 
 # This function parses the arguments and returns a searchDict
-def parseArguments(filterDict):
+def _parseArguments(filterDict):
 	searchDict = {}
 	parser = argparse.ArgumentParser(description='Search for TS that match a criteria')
 	for table_name, column_name in filterDict:
@@ -39,18 +39,22 @@ def parseArguments(filterDict):
 				searchDict[(table_name,column_name)] = args[column_name]
 
 	return searchDict
+def main():
+	_xml_dir_path = r'/home/ubuntu/pae/xml/StreamAnalyzer'
+	_searchString = False
+	urlsFlag = None
+	#filterDict = ast.literal_eval(open("filterDict2.txt", "r").read())
+	filterDict = obtainFilterDictMT()
+	invConversionDict = obtainInvConversionDict()
 
-_xml_dir_path = r'/home/ubuntu/pae/xml/StreamAnalyzer'
-_searchString = False
-urlsFlag = None
-#filterDict = ast.literal_eval(open("filterDict2.txt", "r").read())
-filterDict = obtainFilterDictMT()
-invConversionDict = obtainInvConversionDict()
+	searchDict = _parseArguments(filterDict)
+	if 'searchString' in searchDict:
+		matchList = searchText(searchDict['searchString'],_xml_dir_path)
+		return matchList
+	else:
+		searchResult = querySearchMT(searchDict,urlsFlag)
+		return searchResult
 
-searchDict = parseArguments(filterDict)
-if 'searchString' in searchDict:
-	matchList = searchText(searchDict['searchString'],_xml_dir_path)
-	print(matchList)
-else:
-	searchResult = querySearchMT(searchDict,urlsFlag)
-	print(searchResult)
+if __name__ == "__main__":
+	result = main()
+	print(result)
