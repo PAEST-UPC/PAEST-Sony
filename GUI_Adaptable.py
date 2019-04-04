@@ -80,6 +80,7 @@ def obtainSearchDict(CBoxDict):
 def search():
 	searchDict = obtainSearchDict(CBoxDict)
 	searchResult = querySearchMT(searchDict)
+	print(searchResult)
 #	lbl4.config(text=str(searchResult))
 
 

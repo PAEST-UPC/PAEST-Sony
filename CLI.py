@@ -1,4 +1,4 @@
-import argparse
+import argparse, sys
 from QueryModule import *
 from SearchModule import *
 import ast
@@ -10,8 +10,27 @@ def parseArguments(filterDict):
 	parser = argparse.ArgumentParser(description='Search for TS that match a criteria')
 	for table_name, column_name in filterDict:
 		parser.add_argument('--'+column_name)
-		
+	parser.add_argument('-s','--searchString',help='If you choose this option you can only filter by string, any other argument will cause an error')
+	parser.add_argument('--getUrls', '-u', help='If you add this argument the results will include urls if possible', default=False, dest='getUrls', action='store_true')	
+	
+	if len(sys.argv)<2:
+		parser.error('Missing arguments')
+
 	args = vars(parser.parse_args())
+
+	if args['searchString']:
+		global _searchString
+		_searchString = args['searchString']
+
+		if len(sys.argv)>3:
+			parser.error('searchString is not compatible with other arguments')
+		else:
+			searchDict['searchString'] = args['searchString']
+		return searchDict	
+	
+	global urlsFlag
+	urlsFlag = args['getUrls']
+
 	for table_name, column_name in filterDict:
 		if args[column_name]:
 			if args[column_name] in invConversionDict:
@@ -21,9 +40,17 @@ def parseArguments(filterDict):
 
 	return searchDict
 
-
+_xml_dir_path = r'/home/ubuntu/pae/xml/StreamAnalyzer/Germany'
+_searchString = False
+urlsFlag = None
 #filterDict = ast.literal_eval(open("filterDict2.txt", "r").read())
 filterDict = obtainFilterDictMT()
 invConversionDict = obtainInvConversionDict()
+
 searchDict = parseArguments(filterDict)
-searchResult = querySearchMT(searchDict)
+if 'searchString' in searchDict:
+	matchList = searchText(searchDict['searchString'],_xml_dir_path)
+	print(matchList)
+else:
+	searchResult = querySearchMT(searchDict,urlsFlag)
+	print(searchResult)

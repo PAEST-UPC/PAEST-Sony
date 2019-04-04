@@ -5,14 +5,9 @@ import pymysql
 dbServerName = "127.0.0.1"
 dbUser = "ubuntu"
 dbPassword = "paesa19"
-dbName = "searcherTest"
+dbName = "searcherTest2"
 dictdbName = "dictionary"
 charSet = "utf8mb4"
-#dbServerName = "127.0.0.1"
-#dbUser = "root"
-#dbPassword = "1234"
-#dbName = "test"
-#charSet = "utf8mb4"
 #cursorType = pymysql.cursors.DictCursor
 
 ######## PRIVATE FUNCTIONS ########
@@ -45,7 +40,7 @@ def _queryDB(sqlQuery,dbName):
 def _obtainPKInfo():
 
 	# Obtain table_name, column_name, column_key of all columns in DB
-	sqlQuery = f"select table_name, column_name, column_key from information_schema.columns where table_schema = '{dbName}' order by table_name"
+	sqlQuery = f"SELECT table_name, column_name, column_key FROM information_schema.columns WHERE table_schema = '{dbName}' order by table_name"
 
     # Execute the sqlQuery and get answer
 	return _queryDB(sqlQuery,dbName)
@@ -62,7 +57,7 @@ def obtainFilterDict():
 	# Tuple of (Table,Column) as key and list of distinct values for the column as value
 	filterDict = {}
 	for table_name, column_name, column_key in PKInfo:
-		sqlQuery = "select distinct {0} from {1} order by {0}".format(column_name, table_name)
+		sqlQuery = "SELECT distinct {0} FROM {1} order by {0}".format(column_name, table_name)
 		filterDict[(table_name,column_name)] = _queryDB(sqlQuery,dbName) 
 	
 	return filterDict
@@ -71,7 +66,7 @@ def obtainConversionDict():
 	conversionDict = {}
 
 	# Obtain table_name, column_name, value_name, UserFriendly_value of all columns in DB
-	sqlQuery = f"select type, var_obtained, value, meaning from Dictionary"
+	sqlQuery = f"SELECT type, var_obtained, value, meaning FROM Dictionary"
 	rows = _queryDB(sqlQuery,dictdbName)
 	for table_name, column_name, value_name, userFriendly_value in rows:
 		conversionDict[(table_name,column_name,value_name)] = userFriendly_value
@@ -82,7 +77,7 @@ def obtainInvConversionDict():
 	invConversionDict = {}
 
 	# Obtain table_name, column_name, value_name, UserFriendly_value of all columns in DB
-	sqlQuery = f"select type, var_obtained, value, meaning from Dictionary"
+	sqlQuery = f"SELECT type, var_obtained, value, meaning FROM Dictionary"
 	rows = _queryDB(sqlQuery,dictdbName)
 	for table_name, column_name, value_name, userFriendly_value in rows:
 		invConversionDict[userFriendly_value] = value_name
@@ -100,9 +95,9 @@ def obtainFilterDictMT():
 	filterDict = {}
 	for table_name, column_name, column_key in PKInfo:
 		if not column_key:
-			sqlQuery = "select distinct {0} from {1} order by {0}".format(column_name, table_name)
+			sqlQuery = "SELECT distinct {0} FROM {1} order by {0}".format(column_name, table_name)
 			filterDict[(table_name,column_name)] = _queryDB(sqlQuery,dbName)
-	
+	del filterDict[('URL','URL')]
 	return filterDict
 
 
@@ -119,7 +114,7 @@ def querySearch(searchDict):
 			value = "\'{0}\'".format(searchDict[(table_name,column_name)])
 
 		if firstFlag:
-			sqlQuery += "select * from {0} where {1}={2}".format(table_name,column_name,value)
+			sqlQuery += "SELECT * FROM {0} WHERE {1}={2}".format(table_name,column_name,value)
 			firstFlag = False
 		else:
 			sqlQuery += " and {0}={1}".format(column_name,value)
@@ -131,11 +126,15 @@ def querySearch(searchDict):
 
 	return rows
 
-def querySearchMT(searchDict):
+def querySearchMT(searchDict, urlsFlag=False):
 	if not searchDict:
-		return 'Select something'
+		return 'SELECT something'
 	else:
-		sqlQuery = "select identifierTS from PMT where "
+		if urlsFlag:
+			sqlQuery = "SELECT idPMT FROM PMT WHERE "
+		else:
+			sqlQuery = "SELECT identifierTS, PIDNumber FROM PMT WHERE "
+
 		firstFlag = True
 		for table_name, column_name in searchDict:
 			if not firstFlag:
@@ -147,22 +146,45 @@ def querySearchMT(searchDict):
 				value = "\'{0}\'".format(searchDict[(table_name,column_name)])
 
 			if table_name == 'TS':
-				sqlQuery += f"identifierTS IN (SELECT identifierTS from PMT NATURAL JOIN TS WHERE {column_name}={value})"
+				sqlQuery += f"identifierTS IN (SELECT identifierTS FROM PMT NATURAL JOIN TS WHERE {column_name}={value})"
 			elif table_name == 'PMT':
 				sqlQuery += f"{column_name}={value}"
 			elif table_name == 'Stream':
-				sqlQuery += f"idPMT IN (SELECT idPMT from Stream where {column_name}={value})"
+				sqlQuery += f"idPMT IN (SELECT idPMT FROM Stream WHERE {column_name}={value})"
 			else:
-				sqlQuery += f"idPMT IN (SELECT idPMT from Stream NATURAL JOIN {table_name} where {column_name}={value})"
+				sqlQuery += f"idPMT IN (SELECT idPMT FROM Stream NATURAL JOIN {table_name} WHERE {column_name}={value})"
 			firstFlag = False
-	
+
+	if urlsFlag:
+		#sqlQuery = f"SELECT URL FROM Private NATURAL JOIN URL WHERE idPrivate IN (SELECT idPrivate FROM Private NATURAL JOIN Stream WHERE idPMT IN ({sqlQuery}) AND HBBT=1)"
+		sqlQuery = f"SELECT identifierTS, PIDNumber, URL FROM PMT NATURAL JOIN (Stream NATURAL JOIN (Private NATURAL JOIN URL)) WHERE idPMT IN ({sqlQuery}) AND HBBT=1"
+
+
 	# Execute the sqlQuery and get answer in rows
 	print('Quering DB: ' + sqlQuery)
-	#rows = "prova"
 	rows = _queryDB(sqlQuery,dbName)
-	print(rows)
+	
+	resultDict = {}
 
-	return rows
+	if urlsFlag:
+		#URL_List = []
+		#for URL_tuple in rows:
+		#	for URL in URL_tuple:
+		#		URL_List.append(URL)
+		#return URL_List
+		for identifierTS, PIDNumber, URL in rows:
+			if identifierTS not in resultDict:
+				resultDict[identifierTS] = {}
+			if hex(PIDNumber).upper() not in resultDict[identifierTS]:
+				resultDict[identifierTS][hex(PIDNumber).upper()] = []
+			resultDict[identifierTS][hex(PIDNumber).upper()].append(URL)
+		#return URL_List
+	else:
+		for identifierTS, PIDNumber in rows:
+			if identifierTS not in resultDict:
+				resultDict[identifierTS] = []
+			resultDict[identifierTS].append(hex(PIDNumber).upper())
+	return resultDict
 
 if __name__ == "__main__":
 	print(obtainConversionDict())
