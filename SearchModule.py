@@ -19,11 +19,17 @@ def _findFile(pattern,filePath):
 
 ######## PUBLIC FUNCTIONS ########
 
-# return a list of all files in a directory that contain a pattern
+# return a list of all files in a directory (recursive for subdirectories) that contain a pattern
 def searchText(pattern,dirPath):
 	matchList = []
+
 	for filename in os.listdir(dirPath):
-		if _findFile(pattern,os.path.join(dirPath,filename)):
-			matchList.append(filename)
+		path = os.path.join(dirPath,filename)
+		if os.path.isfile(path):
+			if _findFile(pattern,path):
+				matchList.append(filename)
+		elif os.path.isdir(path):
+			matchList += searchText(pattern,path)
 	return matchList
+
 

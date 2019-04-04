@@ -40,7 +40,7 @@ def parseArguments(filterDict):
 
 	return searchDict
 
-_xml_dir_path = r'/home/ubuntu/pae/xml/StreamAnalyzer/Germany'
+_xml_dir_path = r'/home/ubuntu/pae/xml/StreamAnalyzer'
 _searchString = False
 urlsFlag = None
 #filterDict = ast.literal_eval(open("filterDict2.txt", "r").read())
