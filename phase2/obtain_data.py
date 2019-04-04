@@ -164,7 +164,6 @@ def obtainData (fullname, xml_name, cursor, idPMT, idStream, idVideo, idAudio, i
                                                         for urlList in  urlFinal.findall(tag+'URLBase'):
                                                             url = urlList.text
                                                             idURL +=1
-                                                            print (url)
                                                             insert_URL(idURL, url, idPrivate, cursor)
                     idStream +=1
                     insert_Stream_Private(idStream, elementary_PID, stream_type, component_tag, idPMT, xml_name, idPrivate, cursor)
