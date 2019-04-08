@@ -39,9 +39,19 @@ def obtainData (fullname, xml_name, cursor, idPMT, idStream, idVideo, idAudio, i
         pid = int(pmt.find(tag+'PID').text,16)
         #TO DO NEW PARAMETERS OF PMT
         num_onid = 0
-        name_onid = "TO DO"
-        network_onid = "TO DO"
-        country_onid = "TO DO"
+        name_onid = "not defined"
+        network_onid = "not defined"
+        country_onid = "not defined"
+        for child in root:
+            if child.tag == (tag+'Onids'):
+            for onids in root.findall(tag+'Onids'):
+                for onid in onids.findall(tag+'Onid'):
+                    onid_PID = int(onid.find(tag+'PID').text,16)
+                    if onid_PID == pid:
+                        num_onid = int(onid.find(tag+'Onid_Number').text)
+                        name_onid = onid.find(tag+'Onid_Operator').text
+                        network_onid = onid.find(tag+'Onid_Network_Name').text
+                        country_onid = onid.find(tag+'Onid_Country').text
         idPMT +=1
         insert_PMT(idPMT, pid, xml_name, num_onid, name_onid, network_onid, country_onid, cursor)
         #STREAM SECTION
