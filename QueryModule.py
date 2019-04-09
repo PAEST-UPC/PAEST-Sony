@@ -40,7 +40,7 @@ def _queryDB(sqlQuery,dbName):
 def _obtainPKInfo():
 
     # Obtain table_name, column_name, column_key of all columns in DB
-    sqlQuery = f"SELECT table_name, column_name, column_key FROM information_schema.columns WHERE table_schema = '{dbName}' order by table_name"
+    sqlQuery = "SELECT table_name, column_name, column_key FROM information_schema.columns WHERE table_schema = '{0}' order by table_name".format(dbName)
 
     # Execute the sqlQuery and get answer
     return _queryDB(sqlQuery,dbName)
@@ -66,7 +66,7 @@ def obtainConversionDict():
     conversionDict = {}
 
     # Obtain table_name, column_name, value_name, UserFriendly_value of all columns in DB
-    sqlQuery = f"SELECT type, var_obtained, value, meaning FROM Dictionary"
+    sqlQuery = "SELECT type, var_obtained, value, meaning FROM Dictionary"
     rows = _queryDB(sqlQuery,dictdbName)
     for table_name, column_name, value_name, userFriendly_value in rows:
         if value_name.strip("'").isdigit(): 
@@ -80,7 +80,7 @@ def obtainInvConversionDict():
     invConversionDict = {}
 
     # Obtain table_name, column_name, value_name, UserFriendly_value of all columns in DB
-    sqlQuery = f"SELECT type, var_obtained, value, meaning FROM Dictionary"
+    sqlQuery = "SELECT type, var_obtained, value, meaning FROM Dictionary"
     rows = _queryDB(sqlQuery,dictdbName)
     for table_name, column_name, value_name, userFriendly_value in rows:
         if value_name.strip("'").isdigit():
@@ -151,17 +151,17 @@ def querySearchMT(searchDict, urlsFlag=False):
                 value = "\'{0}\'".format(searchDict[(table_name,column_name)])
 
             if table_name == 'TS':
-                sqlQuery += f"identifierTS IN (SELECT identifierTS FROM PMT NATURAL JOIN TS WHERE {column_name}={value})"
+                sqlQuery += "identifierTS IN (SELECT identifierTS FROM PMT NATURAL JOIN TS WHERE {0}={1})".format(column_name,value)
             elif table_name == 'PMT':
-                sqlQuery += f"{column_name}={value}"
+                sqlQuery += "{0}={1})".format(column_name,value)
             elif table_name == 'Stream':
-                sqlQuery += f"idPMT IN (SELECT idPMT FROM Stream WHERE {column_name}={value})"
+                sqlQuery += "idPMT IN (SELECT idPMT FROM Stream WHERE {0}={1})".format(column_name,value)
             else:
-                sqlQuery += f"idPMT IN (SELECT idPMT FROM Stream NATURAL JOIN {table_name} WHERE {column_name}={value})"
+                sqlQuery += "idPMT IN (SELECT idPMT FROM Stream NATURAL JOIN {2} WHERE {0}={1})".format(column_name,value,table_name)
             firstFlag = False
 
     if urlsFlag:
-        sqlQuery = f"SELECT identifierTS, PIDNumber, URL FROM PMT NATURAL JOIN (Stream NATURAL JOIN (Private NATURAL JOIN URL)) WHERE idPMT IN ({sqlQuery}) AND HBBT=1"
+        sqlQuery = "SELECT identifierTS, PIDNumber, URL FROM PMT NATURAL JOIN (Stream NATURAL JOIN (Private NATURAL JOIN URL)) WHERE idPMT IN ({0}) AND HBBT=1".format(sqlQuery)
 
 
     # Execute the sqlQuery and get answer in rows
@@ -188,6 +188,6 @@ def querySearchMT(searchDict, urlsFlag=False):
     return resultDict
 
 if __name__ == "__main__":
-    #print(obtainConversionDict())
-    print(obtainFilterDictMT())
+    print(obtainConversionDict())
+    #print(obtainFilterDictMT())
     
