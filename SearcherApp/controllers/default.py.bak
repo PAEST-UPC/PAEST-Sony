@@ -1,0 +1,23 @@
+from QueryModule import *
+from SearchModule import *
+
+def form():
+    filterDict = obtainFilterDictMT()
+    conversionDict = obtainConversionDict()
+    form_rows = []
+    for (tableName,filterName) in filterDict:
+        values = []
+        for tupled_value in filterDict[(tableName,filterName)]:
+            for value in tupled_value:
+                if (tableName,filterName,value) in conversionDict:
+                    values.append(conversionDict[(tableName,filterName,value)])
+                else:
+                    values.append(value)
+
+        form_rows.append(TR(filterName,SELECT(values,_name=str((tableName,filterName)))))
+    
+    form = FORM(TABLE(*form_rows))
+    
+    print(request.vars)
+    
+    return dict(form=form,searchDict=form.vars)
