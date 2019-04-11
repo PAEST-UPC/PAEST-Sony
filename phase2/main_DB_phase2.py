@@ -39,8 +39,8 @@ if (len(sys.argv)==2):
     for xml_name in (xml_list):
         print (xml_name)
         if xml_name in TS_list:
-            print ("xml_already in DB")
         else:
+            print (xml_name)
             print ("Obtaining Data...")
             idPMT = obtain_PMT(cursor)
             idStream = obtain_Stream(cursor)
