@@ -2,12 +2,11 @@ from QueryModule import *
 #from SearchModule import *
 import ast
 
+searchDict = None
 
 def form():
     filterDict = obtainFilterDictMT()
     conversionDict = obtainConversionDict()
-    #filterDict = ast.literal_eval(open(r"C:\Users\Ruben\Documents\Universidad\4B\PAE\test\filt.txt", "r").read())
-    #conversionDict = ast.literal_eval(open(r"C:\Users\Ruben\Documents\Universidad\4B\PAE\test\conv.txt", "r").read())
 
     form_rows = []
     for (tableName, filterName) in filterDict:
@@ -20,9 +19,24 @@ def form():
                     values.append(value)
 
         form_rows.append(TR(filterName,SELECT(values,_name=(tableName,filterName))))
-    form_rows.append( TR("",INPUT(_type="submit",_value="Search")))
+    form_rows.append(TR("",INPUT(_type="submit",_value="Search")))
     form = FORM(TABLE(*form_rows))
     
-    print(request.vars)
+    if form.process().accepted:
+        global searchDict
+        searchDict = form.vars
+        session.flash = 'form accepted'
+        redirect(URL('result'))
+    elif form.errors:
+        response.flash = 'form has errors'
+    else:
+        response.flash = 'please fill the form'
+
     
     return dict(form=form,searchDict=form.vars)
+
+
+def result():
+    print('Redirect worked:')
+    print(searchDict)
+    return(dict(form=searchDict))
