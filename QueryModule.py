@@ -133,7 +133,7 @@ def querySearch(searchDict):
 
 def querySearchMT(searchDict, urlsFlag=False):
     if not searchDict:
-        return 'SELECT something'
+        return 'select something'
     else:
         if urlsFlag:
             sqlQuery = "SELECT idPMT FROM PMT WHERE "

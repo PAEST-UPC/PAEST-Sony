@@ -5,21 +5,15 @@ from functools import partial
 import ast
 
 root=Tk()
-myframe=Frame(root)
-myframe.pack()#expand = True) #Expandeix el primer frame
+myframe=Frame(root)#,width=1500, height=1200)
 
-canvas=Canvas(myframe)
-window=Frame(canvas,width=768, height=1200)
+canvas=Canvas(myframe,width=600, height=500)
+window=Frame(canvas, height=1300)
 myscrollbar=Scrollbar(myframe,orient="vertical",command=canvas.yview)
 canvas.configure(yscrollcommand=myscrollbar.set)
 
-
-myscrollbar.pack(side="right",fill="y")
-canvas.pack(side="left",expand = True) #Expandeix el canvas
-canvas.create_window((0,0),window=window,anchor='nw')
+canvas.create_window((0,0),window=window,anchor='nw')#,width=1500, height=1200)
 window.bind("<Configure>")
-#window.pack()#expand = True) #Expandeix la llista pero es carrega la scrollbar!!
-
 
 root.title("Searcher Window")
 rows=0
@@ -49,7 +43,7 @@ for (tableName,filterName) in filterDict:
             else:
                 values.append(value)
     
-    CBoxDict[(tableName,filterName)] = Combobox(window,state="readonly", values=values)
+    CBoxDict[(tableName,filterName)] = Combobox(window,state="readonly", width=50, values=values)
     clearButtonDict[(tableName,filterName)] = Button(window, text='Clear', command=partial(clearCBox,CBoxDict[(tableName,filterName)]))
 
     labelsDict[(tableName,filterName)].grid(column=0, row=rows, pady=5)
@@ -57,6 +51,10 @@ for (tableName,filterName) in filterDict:
     clearButtonDict[(tableName,filterName)].grid(column=2, row=rows, pady=5)
 
     rows += 1
+
+myframe.pack()
+canvas.pack(side="left",expand = True)
+myscrollbar.pack(side="right",fill="y")
 
 canvas.configure(scrollregion=canvas.bbox("all"))
 
