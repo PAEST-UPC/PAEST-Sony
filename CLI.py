@@ -12,9 +12,10 @@ def main():
     urlsFlag = None
     #filterDict = ast.literal_eval(open("filterDict2.txt", "r").read())
     filterDict = obtainFilterDictMT()
+    conversionDict = obtainConversionDict()
     invConversionDict = obtainInvConversionDict()
 
-    searchDict = _parseArguments(filterDict)
+    searchDict = _parseArguments(filterDict, conversionDict)
     if 'searchString' in searchDict:
         matchList = searchText(searchDict['searchString'],_xml_dir_path)
         return matchList
@@ -23,11 +24,14 @@ def main():
         return searchResult
 
 # This function parses the arguments and returns a searchDict
-def _parseArguments(filterDict):
+def _parseArguments(filterDict, conversionDict):
     searchDict = {}
     parser = argparse.ArgumentParser(description='Search for TS that match a criteria')
     for table_name, column_name in filterDict:
-        parser.add_argument('--'+column_name)
+	    convertedValues=[]
+	    for value in filterDict[(table_name, column_name)]:
+	        convertedValues.append(conversionDict[(tableName,filterName,value)])
+        parser.add_argument('--'+column_name, help=f'Filter by {column_name}. Current available options: {convertedValues}')
     parser.add_argument('-s','--searchString',help='If you choose this option you can only filter by string, any other argument will cause an error')
     parser.add_argument('--getUrls', '-u', help='If you add this argument the results will include urls if possible', default=False, dest='getUrls', action='store_true')   
     
