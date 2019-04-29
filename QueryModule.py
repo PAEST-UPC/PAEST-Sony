@@ -135,10 +135,7 @@ def querySearchMT(searchDict, urlsFlag=False):
     if not searchDict:
         return 'select something'
     else:
-        if urlsFlag:
-            sqlQuery = "SELECT idPMT FROM PMT WHERE "
-        else:
-            sqlQuery = "SELECT identifierTS, PIDNumber FROM PMT WHERE "
+        sqlQuery = "SELECT idPMT FROM PMT WHERE "
 
         firstFlag = True
         for table_name, column_name in searchDict:
@@ -160,8 +157,10 @@ def querySearchMT(searchDict, urlsFlag=False):
                 sqlQuery += "idPMT IN (SELECT idPMT FROM Stream NATURAL JOIN {2} WHERE {0}={1})".format(column_name,value,table_name)
             firstFlag = False
 
+    sqlQuery = "SELECT Path, Service_Name FROM PMT NATURAL JOIN TS WHERE idPMT IN ({0})".format(sqlQuery)
+    
     if urlsFlag:
-        sqlQuery = "SELECT identifierTS, PIDNumber, URL FROM PMT NATURAL JOIN (Stream NATURAL JOIN (Private NATURAL JOIN URL)) WHERE idPMT IN ({0}) AND HBBT=1".format(sqlQuery)
+        sqlQuery = "SELECT Path, Service_Name, URL FROM PMT NATURAL JOIN (Stream NATURAL JOIN (Private NATURAL JOIN URL)) WHERE idPMT IN ({0}) AND HBBT=1".format(sqlQuery)
 
 
     # Execute the sqlQuery and get answer in rows
@@ -170,21 +169,21 @@ def querySearchMT(searchDict, urlsFlag=False):
     # Create dictionary to store result info
     resultDict = {}
 
-    # Dictionary format with urls: resultDict[identifierTS][PIDNumber] = [url1,url2,...]
+    # Dictionary format with urls: resultDict[identifierTS][Service_Name] = [url1,url2,...]
     if urlsFlag:
-        for identifierTS, PIDNumber, URL in rows:
-            if identifierTS not in resultDict:
-                resultDict[identifierTS] = {}
-            if hex(PIDNumber).upper() not in resultDict[identifierTS]:
-                resultDict[identifierTS][hex(PIDNumber).upper()] = []
-            resultDict[identifierTS][hex(PIDNumber).upper()].append(URL)
+        for Path, Service_Name, URL in rows:
+            if Path not in resultDict:
+                resultDict[Path] = {}
+            if hex(Service_Name).upper() not in resultDict[Path]:
+                resultDict[Path][hex(Service_Name).upper()] = []
+            resultDict[Path][hex(Service_Name).upper()].append(URL)
     
-    # Dictionary format without urls: resultDict[identifierTS] = [PIDNumber1,PIDNumber2,...]
+    # Dictionary format without urls: resultDict[Path] = [Service_Name1,Service_Name2,...]
     else:
-        for identifierTS, PIDNumber in rows:
-            if identifierTS not in resultDict:
-                resultDict[identifierTS] = []
-            resultDict[identifierTS].append(hex(PIDNumber).upper())
+        for Path, Service_Name in rows:
+            if Path not in resultDict:
+                resultDict[Path] = []
+            resultDict[Path].append(hex(Service_Name).upper())
     return resultDict
 
 if __name__ == "__main__":
