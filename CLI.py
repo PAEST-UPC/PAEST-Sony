@@ -29,11 +29,12 @@ def _parseArguments(filterDict, conversionDict):
     parser = argparse.ArgumentParser(description='Search for TS that match a criteria')
     for table_name, column_name in filterDict:
         convertedValues=[]
-        for value in filterDict[(table_name, column_name)]:
-            if (table_name,column_name,value) in conversionDict:
-                convertedValues.append(conversionDict[(table_name,column_name,value)])
-            else:
-                convertedValues.append(value)
+        for tupled_value in filterDict[(table_name, column_name)]:
+            for value in tupled_value:
+                if (table_name,column_name,value) in conversionDict:
+                    convertedValues.append(conversionDict[(table_name,column_name,value)])
+                else:
+                    convertedValues.append(value)
         parser.add_argument('--'+column_name, help=f'Filter by {column_name}. Current available options: {convertedValues}')
     parser.add_argument('-s','--searchString',help='If you choose this option you can only filter by string, any other argument will cause an error')
     parser.add_argument('--getUrls', '-u', help='If you add this argument the results will include urls if possible', default=False, dest='getUrls', action='store_true')   
