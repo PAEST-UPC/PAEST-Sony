@@ -9,9 +9,12 @@ def insert_TS(xml_name, recording_time, country_code, tipe, comment, frequency, 
     insertStatement = "INSERT INTO TS (identifierTS, Recording_Date, Country_Code, Tipo, Comment, Frequency, Operator, Orbital_Position, Path) VALUES ('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}')".format(xml_name, recording_time, country_code, tipe, comment, frequency, operator, orbital_position, path)
     cursor.execute(insertStatement)
 
-def insert_PMT(idPMT, pid, xml_name, num_onid, name_onid, network_onid, country_onid, cursor):
-    insertStatement = "INSERT INTO PMT (idPMT, PIDNumber, identifierTS, Number_ONID, Name_Operator_ONID, Network_Operator_ONID, Country_Code_ONID) VALUES ({0}, {1}, '{2}', {3}, '{4}', '{5}', '{6}')".format(idPMT, pid, xml_name, num_onid, name_onid, network_onid, country_onid)
-    cursor.execute(insertStatement)
+def insert_PMT(idPMT, pid, xml_name, num_onid, name_onid, network_onid, country_onid, service_name, cursor):
+    cursor.execute("INSERT INTO PMT (idPMT, PIDNumber, identifierTS, Number_ONID, Name_Operator_ONID, Network_Operator_ONID, Country_Code_ONID, Service_Name) VALUES (%s, %s, %s, %s, %s, %s, %s, %s);",(idPMT, pid, xml_name, num_onid, name_onid, network_onid, country_onid, service_name))
+
+#def insert_PMT(idPMT, pid, xml_name, num_onid, name_onid, network_onid, country_onid, cursor):
+#    insertStatement = "INSERT INTO PMT (idPMT, PIDNumber, identifierTS, Number_ONID, Name_Operator_ONID, Network_Operator_ONID, Country_Code_ONID) VALUES ({0}, {1}, '{2}', {3}, '{4}', '{5}', '{6}')".format(idPMT, pid, xml_name, num_onid, name_onid, network_onid, country_onid)
+#    cursor.execute(insertStatement)
 
 def insert_Stream_Video(idStream, elementary_PID, stream_type, component_tag, idPMT, xml_name, idVideo, cursor):
     insertStatement = "INSERT INTO Stream (idStream, Elementary_PID, Stream_Type, Stream_Standard, idPMT, identifierTS, idVideo, idAudio, idSubtitles, idTeletext, idPrivate) VALUES ({0}, {1}, {2}, {3}, {4}, '{5}', {6}, NULL, NULL, NULL, NULL)".format(idStream, elementary_PID, stream_type, component_tag, idPMT, xml_name, idVideo)
@@ -33,8 +36,8 @@ def insert_Stream_Private(idStream, elementary_PID, stream_type, component_tag, 
     insertStatement = "INSERT INTO Stream (idStream, Elementary_PID, Stream_Type, Stream_Standard, idPMT, identifierTS, idVideo, idAudio, idSubtitles, idTeletext, idPrivate) VALUES ({0}, {1}, {2}, {3}, {4}, '{5}', NULL, NULL, NULL, NULL, {6})".format(idStream, elementary_PID, stream_type, component_tag, idPMT, xml_name, idPrivate)
     cursor.execute(insertStatement)
 
-def insert_Video(idVideo, W, H, I, name, bit_rate, pixel_aspect, display_aspect, frame_rate, cursor):
-    insertStatement = "INSERT INTO Video (idVideo, Width, Height, Interlaced, TypeName, Bit_Rate_Mode, Pixel_Aspect_Ratio, Display_Aspect_Ratio, Frame_Rate) VALUES ({0}, {1}, {2}, {3}, '{4}', '{5}', {6}, {7}, {8})".format(idVideo, W, H, I, name, bit_rate, pixel_aspect, display_aspect, frame_rate)
+def insert_Video(idVideo, W, H, I, name, bit_rate, pixel_aspect, display_aspect, frame_rate, hdr, cursor):
+    insertStatement = "INSERT INTO Video (idVideo, Width, Height, Interlaced, TypeName, Bit_Rate_Mode, Pixel_Aspect_Ratio, Display_Aspect_Ratio, Frame_Rate, HDR) VALUES ({0}, {1}, {2}, {3}, '{4}', '{5}', {6}, {7}, {8}, {9})".format(idVideo, W, H, I, name, bit_rate, pixel_aspect, display_aspect, frame_rate, hdr)
     cursor.execute(insertStatement)
 
 def insert_Audio(idAudio, audio_type, audio_language, bit_rate_mode, bit_rate, channels, frame_rate, cursor):
@@ -50,7 +53,7 @@ def insert_Teletext(idTeletext, teletext_language, cursor):
     cursor.execute(insertStatement)
 
 def insert_Private(idPrivate, standard, cursor):
-    insertStatement = "INSERT INTO Private (idPrivate, HBBT) VALUES ({0}, {1})".format(idPrivate, standard)
+    insertStatement = "INSERT INTO Private (idPrivate, HbbTV) VALUES ({0}, {1})".format(idPrivate, standard)
     cursor.execute(insertStatement)
 
 def insert_URL(idURL, url, idPrivate, cursor):

@@ -37,11 +37,13 @@ def obtainData (fullname, xml_name, cursor, idPMT, idStream, idVideo, idAudio, i
     #PMT SECTION
     for pmt in root.findall(tag+'PMT'):
         pid = int(pmt.find(tag+'PID').text,16)
+
         #TO DO NEW PARAMETERS OF PMT
         num_onid = 0
         name_onid = "not defined"
         network_onid = "not defined"
         country_onid = "not defined"
+        service_name = "not defined"
         for child in root:
             if child.tag == (tag+'Onids'):
                 for onids in root.findall(tag+'Onids'):
@@ -52,8 +54,24 @@ def obtainData (fullname, xml_name, cursor, idPMT, idStream, idVideo, idAudio, i
                             name_onid = onid.find(tag+'Onid_Operator').text
                             network_onid = onid.find(tag+'Onid_Network_Name').text
                             country_onid = onid.find(tag+'Onid_Country').text
+
+        for parserinfo in root.findall (tag+'Parser_Info'):
+                print ("Parser info FOUND")
+                print (pid)
+                for names in parserinfo.findall(tag+'Names'):
+                    for name in names.findall(tag+'Name'):
+                        name_PID = int(name.find(tag+'ID').text)
+                        print ("name PID = " +str(name_PID))
+                        if name_PID == pid:
+                            print ("################## NAME ENCONTRADO ################################")
+                            service_name = name.find(tag+'ServiceName').text
+                            print (service_name)
         idPMT +=1
-        insert_PMT(idPMT, pid, xml_name, num_onid, name_onid, network_onid, country_onid, cursor)
+        #print ('num_onid = '+str(num_onid))
+        #print ('name_onid = '+name_onid)
+        #print ('network_onid = '+network_onid)
+        #print ('country_onid = '+country_onid)
+        insert_PMT(idPMT, pid, xml_name, num_onid, name_onid, network_onid, country_onid, service_name, cursor)
         #STREAM SECTION
         for streams in pmt.findall(tag+'Streams'):
             for stream in streams.findall(tag+'Stream'):
@@ -65,11 +83,16 @@ def obtainData (fullname, xml_name, cursor, idPMT, idStream, idVideo, idAudio, i
                 #TYPE SECTION
                 #find type of stream and insert the row in corresponent table and row in streams after that relating both
                 if stream_type == cte.VIDEO_MPEG or stream_type == cte.VIDEO_HEVC or stream_type == cte.VIDEO_AVC:
+
                     #VIDEO SECTION
+                    hdr=0
                     width=0
                     height=0
                     interlaced=(cte.MISSING)
                     video_typename = 'not defined'
+                    if stream_type == cte.VIDEO_HEVC:
+                        for hevc in stream.findall(tag+'HEVCVideoDescriptor'):
+                            hdr = int(hevc.find(tag+'sub_pic_hrd_params_not_present_flag').text)
                     for child in root:
                         if child.tag == (tag+'Video'):
                             for video in root.findall(tag+'Video'):
@@ -87,19 +110,21 @@ def obtainData (fullname, xml_name, cursor, idPMT, idStream, idVideo, idAudio, i
                     pixel_aspect_ratio = 0
                     display_aspect_ratio = 0
                     frame_rate = 0
-                    for parserInfo in root.findall(tag+'ParserInfo'):
-                        for vids in parserInfo.findall(tag+'Videos'):
-                            for vid in vids.findall(tag+'Video'):
-                                identifierVid = int(vid.find(tag+'ID').text)
-                                if elementary_PID == identifierVid:
-                                    width = int(vid.find(tag+'Width').text)
-                                    height = int(vid.find(tag+'Height').text)
-                                    bit_rate_mode = vid.find(tag+'BitRate_Mode').text
-                                    pixel_aspect_ratio = float(vid.find(tag+'PixelAspectRatio').text)
-                                    display_aspect_ratio = float(vid.find(tag+'DisplayAspectRatio').text)
-                                    frame_rate = float(vid.find(tag+'FrameRate').text)
+#                    for parserInfo in root.findall(tag+'Parser_Info'):
+#                        for vids in parserInfo.findall(tag+'Videos'):
+#                            for vid in vids.findall(tag+'Video'):
+#                                identifierVid = int(vid.find(tag+'ID').text)
+#                                print (identifierVid)
+#                                print (elementary_PID)
+#                                if elementary_PID == identifierVid:
+#                                    width = int(vid.find(tag+'Width').text)
+#                                    height = int(vid.find(tag+'Height').text)
+#                                    bit_rate_mode = vid.find(tag+'BitRate_Mode').text
+#                                    pixel_aspect_ratio = float(vid.find(tag+'PixelAspectRatio').text)
+#                                    display_aspect_ratio = float(vid.find(tag+'DisplayAspectRatio').text)
+#                                    frame_rate = float(vid.find(tag+'FrameRate').text)
                     idVideo +=1
-                    insert_Video(idVideo, width, height, interlaced, video_typename, bit_rate_mode, pixel_aspect_ratio, display_aspect_ratio, frame_rate, cursor)
+                    insert_Video(idVideo, width, height, interlaced, video_typename, bit_rate_mode, pixel_aspect_ratio, display_aspect_ratio, frame_rate, hdr, cursor)
                     idStream +=1
                     insert_Stream_Video(idStream, elementary_PID, stream_type, component_tag, idPMT, xml_name, idVideo, cursor)
                 elif stream_type == cte.AUDIO_MPEG_1 or stream_type == cte.AUDIO_MPEG_2 or stream_type == cte.AUDIO_MPEG4_AAC or stream_type == cte.AUDIO_MPEG_AAC or stream_type == cte.AUDIO_AC3 or stream_type == cte.AUDIO_DTS:
@@ -115,15 +140,15 @@ def obtainData (fullname, xml_name, cursor, idPMT, idStream, idVideo, idAudio, i
                     bit_rate = 0
                     channels = "not defined"
                     frame_rate = 0
-                    for parserInfo in root.findall(tag+'ParserInfo'):
-                        for auds in parserInfo.findall(tag+'Audios'):
-                            for aud in auds.findall(tag+'Audio'):
-                                identifierVid = int(aud.find(tag+'ID').text)
-                                if elementary_PID == identifierVid:
-                                    bit_rate_mode = aud.find(tag+'BitRate_Mode').text
-                                    bit_rate = float(aud.find(tag+'BitRate').text)
-                                    channels = aud.find(tag+'Channels').text
-                                    frame_rate = float(aud.find(tag+'FrameRate').text)
+#                    for parserInfo in root.findall(tag+'Parser_Info'):
+#                        for auds in parserInfo.findall(tag+'Audios'):
+#                            for aud in auds.findall(tag+'Audio'):
+#                                identifierVid = int(aud.find(tag+'ID').text)
+#                                if elementary_PID == identifierVid:
+#                                    bit_rate_mode = aud.find(tag+'BitRate_Mode').text
+#                                    bit_rate = float(aud.find(tag+'BitRate').text)
+#                                    channels = aud.find(tag+'Channels').text
+#                                    frame_rate = float(aud.find(tag+'FrameRate').text)
                     idAudio +=1
                     insert_Audio(idAudio, audio_type, audio_language, bit_rate_mode, bit_rate, channels, frame_rate, cursor)
                     idStream +=1

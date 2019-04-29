@@ -26,7 +26,8 @@ if (len(sys.argv)==2):
     connection = connector.connect(host='localhost',
                                  database=sys.argv[1],
                                  user='ubuntu',
-                                 password='paesa19')
+                                 password='paesa19',
+                                 charset="utf8mb4")
     if (connection.is_connected()):
         print ('Connected to the DB')
         cursor = connection.cursor()
@@ -37,9 +38,7 @@ if (len(sys.argv)==2):
     xml_list = ls(final_xml_path)
 
     for xml_name in (xml_list):
-        print (xml_name)
-        if xml_name in TS_list:
-        else:
+        if xml_name not in TS_list: 
             print (xml_name)
             print ("Obtaining Data...")
             idPMT = obtain_PMT(cursor)
