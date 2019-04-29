@@ -5,6 +5,7 @@ import ast
 
 filterDict = obtainFilterDictMT()
 invConversionDict = obtainInvConversionDict()
+#isFilter = obtainIsFilter()
 
 def main():
     _xml_dir_path = r'/home/ubuntu/pae/xml/StreamAnalyzer'
@@ -30,18 +31,22 @@ def _parseArguments(filterDict, conversionDict):
     searchDict = {}
     parser = argparse.ArgumentParser(description='Search for TS that match a criteria')
     for table_name, column_name in filterDict:
-        convertedValues=[]
-        for tupled_value in filterDict[(table_name, column_name)]:
-            for value in tupled_value:
-                if (table_name,column_name,value) in conversionDict:
-                    convertedValues.append(conversionDict[(table_name,column_name,value)])
-                else:
-                    convertedValues.append(value)
-        parser.add_argument('--'+column_name, help=f'Filter by {column_name}. Current available options: {convertedValues}')
+        if isFilter[column_name]:
+            convertedValues=[]
+            for tupled_value in filterDict[(table_name, column_name)]:
+                for value in tupled_value:
+                    if (table_name,column_name,value) in conversionDict:
+                        convertedValues.append(conversionDict[(table_name,column_name,value)])
+                    else:
+                        convertedValues.append(value)
+            if len(sys.argv) == 2 and sys.argv[1] == '--'+column_name:
+                parser.error(convertedValues)
+            else:
+                parser.add_argument('--'+column_name, help=f'Filter by {column_name}. Current available options: {convertedValues}')
     parser.add_argument('-s','--searchString',help='If you choose this option you can only filter by string, any other argument will cause an error')
     parser.add_argument('--getUrls', '-u', help='If you add this argument the results will include urls if possible', default=False, dest='getUrls', action='store_true')   
     
-    if len(sys.argv)<2:
+    if len(sys.argv) < 2:
         parser.error('Missing arguments')
 
     args = vars(parser.parse_args())

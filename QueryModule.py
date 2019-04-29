@@ -76,6 +76,18 @@ def obtainConversionDict():
 
     return conversionDict
 
+def obtainIsFilter():
+    isFilter = {}
+
+    sqlQuery = "SELECT Column_name, Use FROM Filters"
+    rows = _queryDB(sqlQuery,dictdbName)
+    for column_name, use in rows:
+        isFilter[column_name] = use
+
+    return isFilter
+
+
+
 def obtainInvConversionDict():
     invConversionDict = {}
 
