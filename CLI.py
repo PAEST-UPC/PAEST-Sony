@@ -1,4 +1,4 @@
-import argparse, sys
+import argparse, sys, pandas
 from QueryModule import *
 from SearchModule import *
 import ast
@@ -21,6 +21,8 @@ def main():
         return matchList
     else:
         searchResult = querySearchMT(searchDict,urlsFlag)
+        df = pandas.DataFrame.from_dict(searchResult, orient='index')
+        df.to_csv('test.csv')
         return searchResult
 
 # This function parses the arguments and returns a searchDict
