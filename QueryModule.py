@@ -79,7 +79,7 @@ def obtainConversionDict():
 def obtainIsFilter():
     isFilter = {}
 
-    sqlQuery = "SELECT Column_name, Use FROM Filters"
+    sqlQuery = "SELECT * FROM Filters"
     rows = _queryDB(sqlQuery,dictdbName)
     for column_name, use in rows:
         isFilter[column_name] = use
@@ -199,6 +199,6 @@ def querySearchMT(searchDict, urlsFlag=False):
     return resultDict
 
 if __name__ == "__main__":
-    print(obtainConversionDict())
+    print(obtainIsFilter())
     #print(obtainFilterDictMT())
     
