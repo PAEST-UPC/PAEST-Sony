@@ -3,52 +3,45 @@ from QueryModule import *
 from SearchModule import *
 import ast
 
-filterDict = obtainFilterDictMT()
-invConversionDict = obtainInvConversionDict()
-
 def main():
     _xml_dir_path = r'/home/ubuntu/pae/xml/StreamAnalyzer'
     _searchString = False
     urlsFlag = None
-    #filterDict = ast.literal_eval(open("filterDict2.txt", "r").read())
-    filterDict = obtainFilterDictMT()
+    filterDict = obtainFilterDict()
     conversionDict = obtainConversionDict()
     invConversionDict = obtainInvConversionDict()
-    isFilter = obtainIsFilter()
 
-    searchDict = _parseArguments(filterDict, conversionDict, isFilter)
+    searchDict = _parseArguments(filterDict, conversionDict)
     if 'searchString' in searchDict:
         matchList = searchText(searchDict['searchString'],_xml_dir_path)
         return matchList
     else:
-        searchResult = querySearchMT(searchDict,urlsFlag)
+        searchResult = querySearch(searchDict,urlsFlag)
         df = pandas.DataFrame.from_dict(searchResult, orient='index')
         df.to_csv('test.csv')
         return searchResult
 
 # This function parses the arguments and returns a searchDict
-def _parseArguments(filterDict, conversionDict, isFilter):
+def _parseArguments(filterDict, conversionDict):
     searchDict = {}
     convertedValues = {}
     parser = argparse.ArgumentParser(description='Search for TS that match a criteria')
     for table_name, column_name in filterDict:
-        if column_name in isFilter:
-            if isFilter[column_name]:
-                convertedValues[column_name] = []
-                for tupled_value in filterDict[(table_name, column_name)]:
-                    for value in tupled_value:
-                        if (table_name,column_name,value) in conversionDict:
-                            convertedValues[column_name].append(conversionDict[(table_name,column_name,value)])
-                        else:
-                            convertedValues[column_name].append(value)
-                parser.add_argument('--'+column_name, help=f'Filter by {column_name}. Current available options: {convertedValues[column_name]}')
+        convertedValues[column_name] = []
+        for tupled_value in filterDict[(table_name, column_name)]:
+            for value in tupled_value:
+                if (table_name,column_name,value) in conversionDict:
+                    convertedValues[column_name].append(conversionDict[(table_name,column_name,value)])
+                else:
+                    convertedValues[column_name].append(value)
+        parser.add_argument('--'+column_name, help=f'Filter by {column_name}. Current available options: {convertedValues[column_name]}')
     parser.add_argument('-s','--searchString',help='If you choose this option you can only filter by string, any other argument will cause an error')
     parser.add_argument('--getUrls', '-u', help='If you add this argument the results will include urls if possible', default=False, dest='getUrls', action='store_true')   
     
     if len(sys.argv) < 2:
         parser.error('Missing arguments')
     if len(sys.argv) == 2:
-        for column_name in isFilter:
+        for table_name, column_name in filterDict:
             if sys.argv[1] == '--'+column_name:
                 parser.error('Values of ' + column_name + ': ' + str(convertedValues[column_name]))
 

@@ -21,7 +21,6 @@ def _queryDB(sqlQuery,dbName):
         cursorObject = connectionObject.cursor()
 
         # Execute the sqlQuery
-        #print('Quering DB: ' + sqlQuery)
         cursorObject.execute(sqlQuery)
 
         # Fetch all the rows
@@ -36,8 +35,18 @@ def _queryDB(sqlQuery,dbName):
         connectionObject.close()
 
 
+def _obtainIsFilter():
+    isFilter = {}
+
+    sqlQuery = "SELECT * FROM Filters"
+    rows = _queryDB(sqlQuery,dictdbName)
+    for column_name, use in rows:
+        isFilter[column_name] = use
+
+    return isFilter
+
 # Auxiliary function that returns
-def _obtainPKInfo():
+def _obtainTables():
 
     # Obtain table_name, column_name, column_key of all columns in DB
     sqlQuery = "SELECT table_name, column_name, column_key FROM information_schema.columns WHERE table_schema = '{0}' order by table_name".format(dbName)
@@ -46,21 +55,6 @@ def _obtainPKInfo():
     return _queryDB(sqlQuery,dbName)
 
 ######## PUBLIC FUNCTIONS ########
-
-# This function returns a dictionary containing all the needed info to start the GUI
-def obtainFilterDict():
-
-    # Obtain PKInfo()
-    PKInfo = _obtainPKInfo()
-
-    # Create dictionary to store db info
-    # Tuple of (Table,Column) as key and list of distinct values for the column as value
-    filterDict = {}
-    for table_name, column_name, column_key in PKInfo:
-        sqlQuery = "SELECT distinct {0} FROM {1} order by {0}".format(column_name, table_name)
-        filterDict[(table_name,column_name)] = _queryDB(sqlQuery,dbName) 
-    
-    return filterDict
 
 def obtainConversionDict():
     conversionDict = {}
@@ -76,74 +70,27 @@ def obtainConversionDict():
 
     return conversionDict
 
-def obtainIsFilter():
-    isFilter = {}
-
-    sqlQuery = "SELECT * FROM Filters"
-    rows = _queryDB(sqlQuery,dictdbName)
-    for column_name, use in rows:
-        isFilter[column_name] = use
-
-    return isFilter
-
-
-
-def obtainInvConversionDict():
-    invConversionDict = {}
-
-    # Obtain table_name, column_name, value_name, UserFriendly_value of all columns in DB
-    sqlQuery = "SELECT type, var_obtained, value, meaning FROM Dictionary"
-    rows = _queryDB(sqlQuery,dictdbName)
-    for table_name, column_name, value_name, userFriendly_value in rows:
-        if value_name.strip("'").isdigit():
-            invConversionDict[userFriendly_value] = value_name.strip("'")
-        else:
-            invConversionDict[userFriendly_value] = value_name
-
-    return invConversionDict
-
 # This function returns a dictionary containing all the needed info to start the GUI from MultiTable DB
-def obtainFilterDictMT():
+def obtainFilterDict():
     
     # Obtain PKInfo()
-    PKInfo = _obtainPKInfo()
+    tableInfo = _obtainTables()
+
+    # Obtain isFilter dictionary
+    isFilter = _obtainIsFilter()
 
     # Create dictionary to store db info
     # Tuple of (Table,Column) as key and list of distinct values for the column as value
     filterDict = {}
-    for table_name, column_name, column_key in PKInfo:
-        if not column_key:
+    for table_name, column_name, column_key in tableInfo:
+        if isFilter[column_name]:
             sqlQuery = "SELECT distinct {0} FROM {1} order by {0}".format(column_name, table_name)
             filterDict[(table_name,column_name)] = _queryDB(sqlQuery,dbName)
     del filterDict[('URL','URL')]
     return filterDict
 
 
-def querySearch(searchDict):
-
-    sqlQuery = ""
-
-    firstFlag = True
-    for table_name, column_name in searchDict:
-
-        if searchDict[(table_name,column_name)].isdigit():
-            value = searchDict[(table_name,column_name)]
-        else:
-            value = "\'{0}\'".format(searchDict[(table_name,column_name)])
-
-        if firstFlag:
-            sqlQuery += "SELECT * FROM {0} WHERE {1}={2}".format(table_name,column_name,value)
-            firstFlag = False
-        else:
-            sqlQuery += " and {0}={1}".format(column_name,value)
-
-    
-     # Execute the sqlQuery and get answer in rows
-    rows = _queryDB(sqlQuery,dbName)
-
-    return rows
-
-def querySearchMT(searchDict, urlsFlag=False):
+def querySearch(searchDict, urlsFlag=False):
     if not searchDict:
         return 'select something'
     else:
@@ -197,8 +144,4 @@ def querySearchMT(searchDict, urlsFlag=False):
                 resultDict[Path] = []
             resultDict[Path].append(hex(Service_Name).upper())
     return resultDict
-
-if __name__ == "__main__":
-    print(obtainIsFilter())
-    #print(obtainFilterDictMT())
     
