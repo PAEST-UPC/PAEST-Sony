@@ -7,13 +7,13 @@ import re,os
 
 # return True if a pattern is contained in a line
 def _findLine(pattern,line):
-    match = re.search(pattern,line)         #Returns a match object if pattern is contained in line. If it doesn't match it returns a None object. 
+    match = re.search(pattern,line)                 #Returns a match object if pattern is contained in line. If it doesn't match it returns a None object. 
     if match:                               
         return True
     return False
 # return True if a pattern is contained in a File
 def _findFile(pattern,filePath):            
-    with open(filePath) as file:            #Opens a file given by filePath. Doesn't need to be closed because of the with-as structure.
+    with open(filePath) as file:                    #Opens a file given by filePath. Doesn't need to be closed because of the with-as structure.
         for line in file:
             if _findLine(pattern,line):
                 return True
