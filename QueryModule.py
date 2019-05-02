@@ -155,15 +155,15 @@ def querySearch(searchDict, urlsFlag=False):
         for Path, Service_Name, URL in rows:
             if Path not in resultDict:
                 resultDict[Path] = {}
-            if hex(Service_Name).upper() not in resultDict[Path]:
-                resultDict[Path][hex(Service_Name).upper()] = []
-            resultDict[Path][hex(Service_Name).upper()].append(URL)
+            if Service_Name not in resultDict[Path]:
+                resultDict[Path][Service_Name] = []
+            resultDict[Path][Service_Name].append(URL)
     
     # Dictionary format without urls: resultDict[Path] = [Service_Name1,Service_Name2,...]
     else:
         for Path, Service_Name in rows:
             if Path not in resultDict:
                 resultDict[Path] = []
-            resultDict[Path].append(hex(Service_Name).upper())
+            resultDict[Path].append(Service_Name)
     return resultDict
     
