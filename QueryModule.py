@@ -1,4 +1,4 @@
-import pymysql
+import mysql.connector
 
 
 # DB server variables
@@ -14,7 +14,7 @@ charSet = "utf8mb4"
 # Auxiliary private function that encapsulates queries to the DB
 def _queryDB(sqlQuery,dbName):
     # Create a connection object
-    connectionObject = pymysql.connect(host=dbServerName, user=dbUser, password=dbPassword,
+    connectionObject = mysql.connector.connect(host=dbServerName, user=dbUser, password=dbPassword,
                                          db=dbName, charset=charSet)#,cursorclass=cursorType)
     try:
         # Create a cursor object
@@ -69,6 +69,28 @@ def obtainConversionDict():
             conversionDict[(table_name,column_name,value_name)] = userFriendly_value
 
     return conversionDict
+
+def obtainInvConversionDict():
+
+    invConversionDict = {}
+
+    # Obtain table_name, column_name, value_name, UserFriendly_value of all columns in DB
+
+    sqlQuery = "SELECT type, var_obtained, value, meaning FROM Dictionary"
+
+    rows = _queryDB(sqlQuery,dictdbName)
+
+    for table_name, column_name, value_name, userFriendly_value in rows:
+
+        if value_name.strip("'").isdigit():
+
+            invConversionDict[userFriendly_value] = value_name.strip("'")
+
+        else:
+
+            invConversionDict[userFriendly_value] = value_name
+
+    return invConversionDict
 
 # This function returns a dictionary containing all the needed info to start the GUI from MultiTable DB
 def obtainFilterDict():
