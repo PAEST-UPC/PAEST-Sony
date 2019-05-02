@@ -16,7 +16,7 @@ def main():
     invConversionDict = obtainInvConversionDict()
     isFilter = obtainIsFilter()
 
-    searchDict = _parseArguments(filterDict, conversionDict)
+    searchDict = _parseArguments(filterDict, conversionDict, isFilter)
     if 'searchString' in searchDict:
         matchList = searchText(searchDict['searchString'],_xml_dir_path)
         return matchList
@@ -27,7 +27,7 @@ def main():
         return searchResult
 
 # This function parses the arguments and returns a searchDict
-def _parseArguments(filterDict, conversionDict):
+def _parseArguments(filterDict, conversionDict, isFilter):
     searchDict = {}
     convertedValues = {}
     parser = argparse.ArgumentParser(description='Search for TS that match a criteria')
@@ -41,7 +41,7 @@ def _parseArguments(filterDict, conversionDict):
                             convertedValues[column_name].append(conversionDict[(table_name,column_name,value)])
                         else:
                             convertedValues[column_name].append(value)
-                parser.add_argument('--'+column_name, help=f'Filter by {column_name}. Current available options: {convertedValues}')
+                parser.add_argument('--'+column_name, help=f'Filter by {column_name}. Current available options: {convertedValues[column_name]}')
     parser.add_argument('-s','--searchString',help='If you choose this option you can only filter by string, any other argument will cause an error')
     parser.add_argument('--getUrls', '-u', help='If you add this argument the results will include urls if possible', default=False, dest='getUrls', action='store_true')   
     
