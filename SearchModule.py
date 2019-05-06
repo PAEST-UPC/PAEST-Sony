@@ -1,5 +1,4 @@
 #This file implements the search by string feature.
-#It uses the re(Regular expression) module for the search and the os(Operator System) module to open files.
 
 import re,os
 
