@@ -61,10 +61,8 @@ def _obtainTables():
     # Execute the sqlQuery and get answer
     return _queryDB(sqlQuery,dbName)
 
-######## PUBLIC FUNCTIONS ########
-
 #Function to obtain a dictionary to convert the values from the database to a user friendly ones.
-def obtainConversionDict():
+def _obtainConversionDict():
     conversionDict = {}
 
     # Obtain table_name, column_name, value_name, UserFriendly_value of all columns in DB
@@ -79,7 +77,7 @@ def obtainConversionDict():
     return conversionDict
 
 #Function that given a user friendly value, it returns the corresponding parameter in the database.
-def obtainInvConversionDict():
+def _obtainInvConversionDict():
     invConversionDict = {}
 
     # Obtain table_name, column_name, value_name, UserFriendly_value of all columns in DB
@@ -92,6 +90,10 @@ def obtainInvConversionDict():
             invConversionDict[userFriendly_value] = value_name
     return invConversionDict
 
+######## PUBLIC FUNCTIONS ########
+
+
+
 #This function returns a dictionary containing all the fields and their corresponding values to search for.
 def obtainFilterDict():
     
@@ -101,24 +103,42 @@ def obtainFilterDict():
     # Obtain isFilter dictionary
     isFilter = _obtainIsFilter()
 
+    # Obtain isFilter dictionary
+    conversionDict = _obtainConversionDict()
+
     # Create dictionary to store db info
     # Tuple of (Table,Column) as key and list of distinct values for the column as value
     filterDict = {}
     for table_name, column_name, column_key in tableInfo:
         if isFilter[column_name]:
             sqlQuery = "SELECT distinct {0} FROM {1} order by {0}".format(column_name, table_name)
-            filterDict[(table_name,column_name)] = _queryDB(sqlQuery,dbName)
+            values = _queryDB(sqlQuery,dbName)
+            filterDict[(table_name,column_name)] = []
+            for tupled_value in values:
+                for value in tupled_value:
+                    if (table_name,column_name,value) in conversionDict:
+                        filterDict[(table_name,column_name)].append(conversionDict[(table_name,column_name,value)])
+                    else:
+                        filterDict[(table_name,column_name)].append(value)
     return filterDict
 
 
 def querySearch(searchDict, urlsFlag=False):
+    
+    conversionDict = _obtainConversionDict()
+    invConversionDict = _obtainInvConversionDict()
+
     if not searchDict:
         return 'select something'
     else:
+
         sqlQuery = "SELECT idPMT FROM PMT WHERE "
 
         firstFlag = True
         for table_name, column_name in searchDict:
+            if searchDict[(table_name,column_name)] in invConversionDict:
+                    searchDict[(table_name,column_name)] = invConversionDict[searchDict[(table_name,column_name)]]
+
             if not firstFlag:
                 sqlQuery += " AND "
             
@@ -151,11 +171,15 @@ def querySearch(searchDict, urlsFlag=False):
     # Dictionary format with urls: resultDict[identifierTS][Service_Name] = [url1,url2,...]
     if urlsFlag:
         for Path, Service_Name, URL in rows:
+            if ('PMT', 'Service_Name', Service_Name) in conversionDict:
+                convertedService_Name = conversionDict[('PMT', 'Service_Name', Service_Name)]
+            else:
+                convertedService_Name = Service_Name
             if Path not in resultDict:
                 resultDict[Path] = {}
             if Service_Name not in resultDict[Path]:
-                resultDict[Path][Service_Name] = []
-            resultDict[Path][Service_Name].append(URL)
+                resultDict[Path][convertedService_Name] = []
+            resultDict[Path][convertedService_Name].append(URL)
     
     # Dictionary format without urls: resultDict[Path] = [Service_Name1,Service_Name2,...]
     else:
