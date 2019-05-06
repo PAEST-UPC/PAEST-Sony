@@ -49,7 +49,6 @@ def _obtainIsFilter():
     for column_name, use in rows:
         isFilter[column_name] = use
     
-    # Returns the parameters in the dictionary isFilter.
     return isFilter
 
 # Auxiliary function that returns the tables information. 
@@ -75,7 +74,7 @@ def _obtainConversionDict():
             conversionDict[(table_name,column_name,int(value_name.strip("'")))] = userFriendly_value
         else:
             conversionDict[(table_name,column_name,value_name)] = userFriendly_value
-    # Returns the dictionary.
+
     return conversionDict
 
 # Function that given a user friendly value, it returns the corresponding parameter in the database.
@@ -85,11 +84,14 @@ def _obtainInvConversionDict():
     # Obtain table_name, column_name, value_name, UserFriendly_value of all columns in DB.
     sqlQuery = "SELECT type, var_obtained, value, meaning FROM Dictionary"
     rows = _queryDB(sqlQuery,dictdbName)
+    # Iterates rows in order to convert the user friendly values to the ones used in the database.
     for table_name, column_name, value_name, userFriendly_value in rows:
+        # Checks if the value is a digit, because SQL saves it as string and adds the "'" character.
         if value_name.strip("'").isdigit():
             invConversionDict[userFriendly_value] = value_name.strip("'")
         else:
             invConversionDict[userFriendly_value] = value_name
+ 
     return invConversionDict
 
 ######## PUBLIC FUNCTIONS ########
@@ -105,60 +107,75 @@ def obtainFilterDict():
     # Obtain isFilter dictionary.
     isFilter = _obtainIsFilter()
 
-    # Obtain convertion dictionary.
+    # Obtain conversion dictionary.
     conversionDict = _obtainConversionDict()
 
     # Create dictionary to store db info.
     # Tuple of (Table,Column) as key and list of distinct values for the column as value.
     filterDict = {}
+    # Iterates table information to build filterDict.
     for table_name, column_name, column_key in tableInfo:
+        # Checks if it is a useful filter.
         if isFilter[column_name]:
+            # Obtains the values given a column_name and a table_name.
             sqlQuery = "SELECT distinct {0} FROM {1} order by {0}".format(column_name, table_name)
             values = _queryDB(sqlQuery,dbName)
+            # Initializes the list where the values will be stored.
             filterDict[(table_name,column_name)] = []
+            # Iterates through the values to remove the tuple format, becouse SQL returns a tuple of one value tuples. The one value tuple format is "(value,)" .
             for tupled_value in values:
                 for value in tupled_value:
+                    # Checks wether the value is defined in conversionDict or not. 
                     if (table_name,column_name,value) in conversionDict:
+                        # Adds the converted value.
                         filterDict[(table_name,column_name)].append(conversionDict[(table_name,column_name,value)])
                     else:
+                        # Adds the value that has no conversion.
                         filterDict[(table_name,column_name)].append(value)
     return filterDict
 
 # This function makes the query to the database by obtaining the dictionary with the fields and corresponding values to search, chosen by the user.
 def querySearch(searchDict, urlsFlag=False):
     
+    # Obtain both conversion dictionaries.
     conversionDict = _obtainConversionDict()
     invConversionDict = _obtainInvConversionDict()
 
-    if not searchDict:
-        return 'select something'
-    else:
-
-        sqlQuery = "SELECT idPMT FROM PMT WHERE "
-
-        firstFlag = True
-        for table_name, column_name in searchDict:
-            if searchDict[(table_name,column_name)] in invConversionDict:
-                    searchDict[(table_name,column_name)] = invConversionDict[searchDict[(table_name,column_name)]]
-
-            if not firstFlag:
-                sqlQuery += " AND "
-            
-            if searchDict[(table_name,column_name)].isdigit():
-                value = searchDict[(table_name,column_name)]
-            else:
-                value = "\'{0}\'".format(searchDict[(table_name,column_name)])
-
-            if table_name == 'TS':
-                sqlQuery += "identifierTS IN (SELECT identifierTS FROM PMT NATURAL JOIN TS WHERE {0}={1})".format(column_name,value)
-            elif table_name == 'PMT':
-                sqlQuery += "{0}={1})".format(column_name,value)
-            elif table_name == 'Stream':
-                sqlQuery += "idPMT IN (SELECT idPMT FROM Stream WHERE {0}={1})".format(column_name,value)
-            else:
-                sqlQuery += "idPMT IN (SELECT idPMT FROM Stream NATURAL JOIN {2} WHERE {0}={1})".format(column_name,value,table_name)
-            firstFlag = False
+    # Initializes the query string.
+    sqlQuery = "SELECT idPMT FROM PMT WHERE "
     
+    # Indicates if the first iteration to create the query.
+    firstFlag = True
+    
+    # Iterates through the searchDict to create the query.
+    for table_name, column_name in searchDict:
+        # Checks if the value in searchDict is in the invConversionDict to convert to the value used in the database.
+        if searchDict[(table_name,column_name)] in invConversionDict:
+                searchDict[(table_name,column_name)] = invConversionDict[searchDict[(table_name,column_name)]]
+        
+        # Checks wether it is the first flag or not, and if it isn't the first adds an AND to the query string.
+        if not firstFlag:
+            sqlQuery += " AND "
+        # Checks wether the value is a digit.
+        if searchDict[(table_name,column_name)].isdigit():
+            value = searchDict[(table_name,column_name)]
+        else:
+            # Converts the value into a concrete string format.
+            value = "\'{0}\'".format(searchDict[(table_name,column_name)])
+
+        # Depending on the table that the column belongs to, a different query needs to be generated. This if elif else, checks all  cases and builds the query.
+        if table_name == 'TS':
+            sqlQuery += "identifierTS IN (SELECT identifierTS FROM PMT NATURAL JOIN TS WHERE {0}={1})".format(column_name,value)
+        elif table_name == 'PMT':
+            sqlQuery += "{0}={1}".format(column_name,value)
+        elif table_name == 'Stream':
+            sqlQuery += "idPMT IN (SELECT idPMT FROM Stream WHERE {0}={1})".format(column_name,value)
+        else:
+            sqlQuery += "idPMT IN (SELECT idPMT FROM Stream NATURAL JOIN {2} WHERE {0}={1})".format(column_name,value,table_name)
+            
+        firstFlag = False
+    
+    # Checks if the user wants the URL and adds the necessary query.
     if urlsFlag:
         sqlQuery = "SELECT Path, Service_Name, URL FROM TS NATURAL JOIN (PMT NATURAL JOIN (Stream NATURAL JOIN (Private NATURAL JOIN URL))) WHERE idPMT IN ({0}) AND HbbTV=1".format(sqlQuery)
     else:
