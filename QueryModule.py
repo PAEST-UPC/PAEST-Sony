@@ -45,13 +45,14 @@ def _obtainIsFilter():
     sqlQuery = "SELECT * FROM Filters"
     rows = _queryDB(sqlQuery,dictdbName)
     
-    #Iterates in rows 
+    #Iterates in rows and gets the useful parameters from use.
     for column_name, use in rows:
         isFilter[column_name] = use
-
+    
+    #Returns the parameters in the dictionary isFilter
     return isFilter
 
-# Auxiliary function that returns
+# Auxiliary function that returns the tables information 
 def _obtainTables():
 
     # Obtain table_name, column_name, column_key of all columns in DB
@@ -62,6 +63,7 @@ def _obtainTables():
 
 ######## PUBLIC FUNCTIONS ########
 
+#Function to obtain a dictionary to convert the values from the database to a user friendly ones.
 def obtainConversionDict():
     conversionDict = {}
 
@@ -76,29 +78,21 @@ def obtainConversionDict():
 
     return conversionDict
 
+#Function that given a user friendly value, it returns the corresponding parameter in the database.
 def obtainInvConversionDict():
-
     invConversionDict = {}
 
     # Obtain table_name, column_name, value_name, UserFriendly_value of all columns in DB
-
     sqlQuery = "SELECT type, var_obtained, value, meaning FROM Dictionary"
-
     rows = _queryDB(sqlQuery,dictdbName)
-
     for table_name, column_name, value_name, userFriendly_value in rows:
-
         if value_name.strip("'").isdigit():
-
             invConversionDict[userFriendly_value] = value_name.strip("'")
-
         else:
-
             invConversionDict[userFriendly_value] = value_name
-
     return invConversionDict
 
-# This function returns a dictionary containing all the needed info to start the GUI from MultiTable DB
+#This function returns a dictionary containing all the fields and their corresponding values to search for.
 def obtainFilterDict():
     
     # Obtain PKInfo()
@@ -114,7 +108,6 @@ def obtainFilterDict():
         if isFilter[column_name]:
             sqlQuery = "SELECT distinct {0} FROM {1} order by {0}".format(column_name, table_name)
             filterDict[(table_name,column_name)] = _queryDB(sqlQuery,dbName)
-    del filterDict[('URL','URL')]
     return filterDict
 
 
