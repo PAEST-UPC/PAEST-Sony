@@ -40,7 +40,6 @@ def main():
 # This function parses the arguments and returns a searchDict
 def _parseArguments(filterDict):
     searchDict = {}
-    untupledValues = {}
     parser = argparse.ArgumentParser(description='Search for TS that match a criteria')
     for table_name, column_name in filterDict:
         parser.add_argument('--'+column_name, help=f'Filter by {column_name}. Current available options: {filterDict[(table_name,column_name)]}')
@@ -53,7 +52,7 @@ def _parseArguments(filterDict):
     if len(sys.argv) == 2:
         for table_name, column_name in filterDict:
             if sys.argv[1] == '--'+column_name:
-                parser.exit(message='Values of ' + column_name + ': ' + str(untupledValues[column_name]))
+                parser.exit(message='Values of ' + column_name + ': ' + str(filterDict[(table_name,column_name)]))
 
     args = vars(parser.parse_args())
 
