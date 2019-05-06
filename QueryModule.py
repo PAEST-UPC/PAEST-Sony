@@ -1,3 +1,5 @@
+#Implements the functions that will interact with the DataBase
+
 import mysql.connector
 
 
@@ -15,7 +17,7 @@ charSet = "utf8mb4"
 def _queryDB(sqlQuery,dbName):
     # Create a connection object
     connectionObject = mysql.connector.connect(host=dbServerName, user=dbUser, password=dbPassword,
-                                         db=dbName, charset=charSet)#,cursorclass=cursorType)
+                                         db=dbName, charset=charSet)
     try:
         # Create a cursor object
         cursorObject = connectionObject.cursor()
@@ -27,19 +29,23 @@ def _queryDB(sqlQuery,dbName):
         return cursorObject.fetchall()
     
     except Exception as e:
-
+        #Prints the error if occured
         print("Exception occured:{}".format(e))
 
     finally:
-
+        #Always close the conection object
         connectionObject.close()
 
-
+#Auxiliary function that checks whether the column_name is a parameter that the user wants to filter by.
 def _obtainIsFilter():
+    #Creates an empty dictionary
     isFilter = {}
 
+    #Gets the information from Filters table
     sqlQuery = "SELECT * FROM Filters"
     rows = _queryDB(sqlQuery,dictdbName)
+    
+    #Iterates in rows 
     for column_name, use in rows:
         isFilter[column_name] = use
 
@@ -137,13 +143,11 @@ def querySearch(searchDict, urlsFlag=False):
             else:
                 sqlQuery += "idPMT IN (SELECT idPMT FROM Stream NATURAL JOIN {2} WHERE {0}={1})".format(column_name,value,table_name)
             firstFlag = False
-
-    sqlQuery = "SELECT Path, Service_Name FROM PMT NATURAL JOIN TS WHERE idPMT IN ({0})".format(sqlQuery)
     
     if urlsFlag:
-        sqlQuery = "SELECT Path, Service_Name, URL FROM PMT NATURAL JOIN (Stream NATURAL JOIN (Private NATURAL JOIN URL)) WHERE idPMT IN ({0}) AND HBBT=1".format(sqlQuery)
-
-
+        sqlQuery = "SELECT Path, Service_Name, URL FROM TS NATURAL JOIN (PMT NATURAL JOIN (Stream NATURAL JOIN (Private NATURAL JOIN URL))) WHERE idPMT IN ({0}) AND HBBT=1".format(sqlQuery)
+    else:
+        sqlQuery = "SELECT Path, Service_Name FROM PMT NATURAL JOIN TS WHERE idPMT IN ({0})".format(sqlQuery)
     # Execute the sqlQuery and get answer in rows
     rows = _queryDB(sqlQuery,dbName)
     
