@@ -145,9 +145,10 @@ def querySearch(searchDict, urlsFlag=False):
             firstFlag = False
     
     if urlsFlag:
-        sqlQuery = "SELECT Path, Service_Name, URL FROM TS NATURAL JOIN (PMT NATURAL JOIN (Stream NATURAL JOIN (Private NATURAL JOIN URL))) WHERE idPMT IN ({0}) AND HBBT=1".format(sqlQuery)
+        sqlQuery = "SELECT Path, Service_Name, URL FROM TS NATURAL JOIN (PMT NATURAL JOIN (Stream NATURAL JOIN (Private NATURAL JOIN URL))) WHERE idPMT IN ({0}) AND HbbTV=1".format(sqlQuery)
     else:
         sqlQuery = "SELECT Path, Service_Name FROM PMT NATURAL JOIN TS WHERE idPMT IN ({0})".format(sqlQuery)
+    
     # Execute the sqlQuery and get answer in rows
     rows = _queryDB(sqlQuery,dbName)
     
