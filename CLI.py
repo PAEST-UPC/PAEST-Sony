@@ -7,7 +7,6 @@ import ast
 
 def main():
     _xml_dir_path = r'/home/ubuntu/pae/xml/StreamAnalyzer'
-    _searchString = False
     filterDict = obtainFilterDict()
 
 
@@ -57,8 +56,6 @@ def _parseArguments(filterDict):
     args = vars(parser.parse_args())
 
     if args['searchString']:
-        _searchString = args['searchString']
-
         if len(sys.argv)>3:
             parser.error('searchString is not compatible with other arguments')
         else:
