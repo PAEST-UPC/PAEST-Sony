@@ -1,13 +1,11 @@
-import argparse, sys, pandas
+import argparse, sys, pandas, ast, os, time
 from QueryModule import *
 from SearchModule import *
-import ast
-
 
 
 def main():
     _xml_dir_path = r'/home/ubuntu/pae/xml/StreamAnalyzer'
-    filterDict = obtainFilterDict()
+    filterDict = getFilterDict()
 
 
     searchDict, urlsFlag, csvFlag = _parseArguments(filterDict)
@@ -71,6 +69,22 @@ def _parseArguments(filterDict):
             searchDict[(table_name,column_name)] = args[column_name]
 
     return searchDict, urlsFlag, csvFlag
+
+def getFilterDict():
+    filename = 'filterDict.txt'
+    filterDict = {}
+    if os.path.isfile(filename):
+        if time.time() - os.path.getmtime(filename) < 120:
+            with open(filename, "r") as data:
+                filterDict = ast.literal_eval(data.read())
+            return filterDict
+    
+
+    filterDict = obtainFilterDict()
+    with open(filename, "w") as file:
+        file.write(str(filterDict))
+
+    return filterDict
 
 if __name__ == "__main__":
     main()
