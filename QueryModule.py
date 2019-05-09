@@ -93,11 +93,15 @@ def _obtainInvConversionDict():
     rows = _query_db(sqlQuery, dictdbName)
     # Iterates rows in order to convert the user friendly values to the ones used in the database.
     for table_name, column_name, value_name, userFriendly_value in rows:
+        # Initialize list of values if it has not been done yet.
+        if (table_name, column_name, userFriendly_value) not in invConversionDict:
+            invConversionDict[(table_name, column_name, userFriendly_value)] = []
+
         # Checks if the value is a digit, because SQL saves it as string and adds the "'" character.
         if value_name.strip("'").isdigit():
-            invConversionDict[(table_name, column_name, userFriendly_value)] = value_name.strip("'")
+            invConversionDict[(table_name, column_name, userFriendly_value)].append(value_name.strip("'"))
         else:
-            invConversionDict[(table_name, column_name, userFriendly_value)] = value_name
+            invConversionDict[(table_name, column_name, userFriendly_value)].append(value_name)
 
     return invConversionDict
 
