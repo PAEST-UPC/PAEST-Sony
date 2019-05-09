@@ -11,7 +11,7 @@ dictdbName = "dictionary"
 charSet = "utf8mb4"
 
 # Constants
-NOT_DEFINED = 'not_defined'
+NOT_DEFINED = 'not defined'
 
 ######## PRIVATE FUNCTIONS ########
 
@@ -157,7 +157,8 @@ def querySearch(searchDict, urlsFlag=False):
     for table_name, column_name in searchDict:
         # Checks if the value in searchDict is in the invConversionDict to convert to the value used in the database.
         if (table_name, column_name, searchDict[(table_name, column_name)]) in invConversionDict:
-            searchDict[(table_name, column_name)] = invConversionDict[(table_name, column_name, searchDict[(table_name, column_name)])]
+            searchDict[(table_name, column_name)] = invConversionDict[
+                (table_name, column_name, searchDict[(table_name, column_name)])]
 
         # Checks wether it is the first flag or not, and if it isn't the first adds an AND to the query string.
         if not firstFlag:
@@ -190,6 +191,7 @@ def querySearch(searchDict, urlsFlag=False):
     else:
         sqlQuery = "SELECT Path, Service_Name, PIDNumber FROM PMT NATURAL JOIN TS WHERE idPMT IN ({0})".format(sqlQuery)
 
+    print(sqlQuery)
     # Execute the sqlQuery and get answer in rows.
     rows = _query_db(sqlQuery, dbName)
 
@@ -214,11 +216,16 @@ def querySearch(searchDict, urlsFlag=False):
     # Dictionary format without urls: resultDict[Path] = [Service_Name1,Service_Name2,...].
     else:
         for Path, Service_Name, PIDNumber in rows:
+            if ('PMT', 'Service_Name', Service_Name) in conversionDict:
+                convertedService_Name = conversionDict[('PMT', 'Service_Name', Service_Name)]
+            else:
+                convertedService_Name = Service_Name
+            if convertedService_Name == NOT_DEFINED:
+                convertedService_Name = hex(int(PIDNumber))
             if Path not in resultDict:
                 resultDict[Path] = []
             if Service_Name == NOT_DEFINED:
-                resultDict[Path].append(hex(int(PIDNumber)))
-            else:
-                resultDict[Path].append(Service_Name)
+                resultDict[Path].append(convertedService_Name)
+
 
     return resultDict
