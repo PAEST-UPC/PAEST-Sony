@@ -10,8 +10,11 @@ dbName = "searcherTest2"
 dictdbName = "dictionary"
 charSet = "utf8mb4"
 
+# Constants
+NOT_DEFINED = 'not_defined'
 
 ######## PRIVATE FUNCTIONS ########
+
 
 # Auxiliary private function that encapsulates queries to the DB.
 def _query_db(sqlQuery, dbName):
@@ -182,10 +185,10 @@ def querySearch(searchDict, urlsFlag=False):
 
     # Checks if the user wants the URL and adds the necessary query.
     if urlsFlag:
-        sqlQuery = "SELECT Path, Service_Name, URL FROM TS NATURAL JOIN (PMT NATURAL JOIN (Stream NATURAL JOIN (Private NATURAL JOIN URL))) WHERE idPMT IN ({0}) AND HbbTV=1".format(
+        sqlQuery = "SELECT Path, Service_Name, PIDNumber, URL FROM TS NATURAL JOIN (PMT NATURAL JOIN (Stream NATURAL JOIN (Private NATURAL JOIN URL))) WHERE idPMT IN ({0}) AND HbbTV=1".format(
             sqlQuery)
     else:
-        sqlQuery = "SELECT Path, Service_Name FROM PMT NATURAL JOIN TS WHERE idPMT IN ({0})".format(sqlQuery)
+        sqlQuery = "SELECT Path, Service_Name, PIDNumber FROM PMT NATURAL JOIN TS WHERE idPMT IN ({0})".format(sqlQuery)
 
     # Execute the sqlQuery and get answer in rows.
     rows = _query_db(sqlQuery, dbName)
@@ -195,11 +198,13 @@ def querySearch(searchDict, urlsFlag=False):
 
     # Dictionary format with urls: resultDict[Path][Service_Name] = [url1,url2,...].
     if urlsFlag:
-        for Path, Service_Name, URL in rows:
+        for Path, Service_Name, PIDNumber, URL in rows:
             if ('PMT', 'Service_Name', Service_Name) in conversionDict:
                 convertedService_Name = conversionDict[('PMT', 'Service_Name', Service_Name)]
             else:
                 convertedService_Name = Service_Name
+            if convertedService_Name == NOT_DEFINED:
+                convertedService_Name = hex(int(PIDNumber))
             if Path not in resultDict:
                 resultDict[Path] = {}
             if Service_Name not in resultDict[Path]:
@@ -208,8 +213,12 @@ def querySearch(searchDict, urlsFlag=False):
 
     # Dictionary format without urls: resultDict[Path] = [Service_Name1,Service_Name2,...].
     else:
-        for Path, Service_Name in rows:
+        for Path, Service_Name, PIDNumber in rows:
             if Path not in resultDict:
                 resultDict[Path] = []
-            resultDict[Path].append(Service_Name)
+            if Service_Name == NOT_DEFINED:
+                resultDict[Path].append(hex(int(PIDNumber)))
+            else:
+                resultDict[Path].append(Service_Name)
+
     return resultDict
