@@ -84,7 +84,7 @@ def _obtainConversionDict():
     return conversionDict
 
 
-# Function that given a user friendly value, it returns the corresponding parameter in the database.
+# Function to obtain a dictionary to convert the user friendly values to the ones in the database.
 def _obtainInvConversionDict():
     invConversionDict = {}
 
@@ -95,9 +95,9 @@ def _obtainInvConversionDict():
     for table_name, column_name, value_name, userFriendly_value in rows:
         # Checks if the value is a digit, because SQL saves it as string and adds the "'" character.
         if value_name.strip("'").isdigit():
-            invConversionDict[userFriendly_value] = value_name.strip("'")
+            invConversionDict[(table_name, column_name, userFriendly_value)] = value_name.strip("'")
         else:
-            invConversionDict[userFriendly_value] = value_name
+            invConversionDict[(table_name, column_name, userFriendly_value)] = value_name
 
     return invConversionDict
 
@@ -156,8 +156,8 @@ def querySearch(searchDict, urlsFlag=False):
     # Iterates through the searchDict to create the query.
     for table_name, column_name in searchDict:
         # Checks if the value in searchDict is in the invConversionDict to convert to the value used in the database.
-        if searchDict[(table_name, column_name)] in invConversionDict:
-            searchDict[(table_name, column_name)] = invConversionDict[searchDict[(table_name, column_name)]]
+        if (table_name, column_name, searchDict[(table_name, column_name)]) in invConversionDict:
+            searchDict[(table_name, column_name)] = invConversionDict[(table_name, column_name, searchDict[(table_name, column_name)])]
 
         # Checks wether it is the first flag or not, and if it isn't the first adds an AND to the query string.
         if not firstFlag:
