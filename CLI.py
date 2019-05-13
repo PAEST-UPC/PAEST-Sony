@@ -5,9 +5,9 @@ from SearchModule import *
 CACHE_TIME = 3600
 
 def main():
-    _xml_dir_path = r'/home/ubuntu/pae/xml/StreamAnalyzer'
+    start = time.time()
+    _xml_dir_path = r'/home/ubuntu/pae/xml/Test9920'
     filterDict = getFilterDict()
-
 
     searchDict, urlsFlag, csvFlag = _parseArguments(filterDict)
     if 'searchString' in searchDict:
@@ -34,6 +34,9 @@ def main():
             df = pandas.DataFrame.from_dict(searchResult, orient='index')
             df.to_csv('searchResult.csv')
 
+    end = time.time()
+    print(end-start)
+
 
 # This function parses the arguments and returns a searchDict.
 def _parseArguments(filterDict):
@@ -59,16 +62,16 @@ def _parseArguments(filterDict):
 
     args = vars(parser.parse_args())
 
+    urlsFlag = args['getUrls']
+
+    csvFlag = args['exportCsv']
+
     if args['searchString']:
         if len(sys.argv)>3:
             parser.error('searchString is not compatible with other arguments')
         else:
             searchDict['searchString'] = args['searchString']
-        return searchDict   
-    
-    urlsFlag = args['getUrls']
-
-    csvFlag = args['exportCsv']
+        return searchDict, urlsFlag, csvFlag
 
     for table_name, column_name in filterDict:
         if args[column_name]:

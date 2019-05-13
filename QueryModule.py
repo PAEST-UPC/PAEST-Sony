@@ -6,7 +6,7 @@ import mysql.connector
 dbServerName = "127.0.0.1"
 dbUser = "ubuntu"
 dbPassword = "paesa19"
-dbName = "searcherTest2"
+dbName = "test9920"
 dictdbName = "dictionary"
 charSet = "utf8mb4"
 
@@ -154,39 +154,63 @@ def querySearch(searchDict, urlsFlag=False):
     # Initializes the query string.
     sqlQuery = "SELECT idPMT FROM PMT WHERE "
 
-    # Indicates if the first iteration to create the query.
+    # Indicates if it is the first iteration to create the query.
     firstFlag = True
 
     # Iterates through the searchDict to create the query.
     for table_name, column_name in searchDict:
+        value = searchDict[(table_name, column_name)]
         # Checks if the value in searchDict is in the invConversionDict to convert to the value used in the database.
-        if (table_name, column_name, searchDict[(table_name, column_name)]) in invConversionDict:
-            searchDict[(table_name, column_name)] = invConversionDict[
-                (table_name, column_name, searchDict[(table_name, column_name)])]
+        if (table_name, column_name, value) in invConversionDict:
+            searchDict[(table_name, column_name)] = invConversionDict[(table_name, column_name, value)]
+        # Converts the value into a one-element list to follow the same structure
+        else:
+            searchDict[(table_name, column_name)] = [value]
 
-        # Checks wether it is the first flag or not, and if it isn't the first adds an AND to the query string.
+        # Checks whether it is the first flag or not, and if it isn't the first, adds an AND to the query string.
         if not firstFlag:
             sqlQuery += " AND "
-        # Checks wether the value is a digit.
-        if searchDict[(table_name, column_name)].isdigit():
-            value = searchDict[(table_name, column_name)]
-        else:
-            # Converts the value into a concrete string format.
-            value = "\'{0}\'".format(searchDict[(table_name, column_name)])
 
-        # Depending on the table that the column belongs to, a different query needs to be generated. This if elif else, checks all  cases and builds the query.
-        if table_name == 'TS':
-            sqlQuery += "identifierTS IN (SELECT identifierTS FROM PMT NATURAL JOIN TS WHERE {0}={1})".format(
-                column_name, value)
-        elif table_name == 'PMT':
-            sqlQuery += "{0}={1}".format(column_name, value)
-        elif table_name == 'Stream':
-            sqlQuery += "idPMT IN (SELECT idPMT FROM Stream WHERE {0}={1})".format(column_name, value)
-        else:
-            sqlQuery += "idPMT IN (SELECT idPMT FROM Stream NATURAL JOIN {2} WHERE {0}={1})".format(column_name, value,
-                                                                                                    table_name)
-
+        # Update firstFlag
         firstFlag = False
+
+        # Indicates if it is the first iteration of elements.
+        internalFirstFlag = True
+
+        # Open parenthesis on each filter condition
+        sqlQuery += "("
+
+        # Iterate over the list of values
+        for element in searchDict[(table_name, column_name)]:
+
+            # Checks whether it is the first flag or not, and if it isn't the first, adds an AND to the query string.
+            if not internalFirstFlag:
+                sqlQuery += " OR "
+
+            # Update internalFirstFlag
+            internalFirstFlag = False
+
+            # Checks whether the value is a digit.
+            if element.isdigit():
+                value = element
+            else:
+                # Converts the value into a concrete string format.
+                value = "\'{0}\'".format(element)
+
+            # Depending on the table that the column belongs to, a different query needs to be generated. This if elif else, checks all  cases and builds the query.
+            if table_name == 'TS':
+                sqlQuery += "identifierTS IN (SELECT identifierTS FROM PMT NATURAL JOIN TS WHERE {0}={1})".format(
+                    column_name, value)
+            elif table_name == 'PMT':
+                sqlQuery += "{0}={1}".format(column_name, value)
+            elif table_name == 'Stream':
+                sqlQuery += "idPMT IN (SELECT idPMT FROM Stream WHERE {0}={1})".format(column_name, value)
+            else:
+                sqlQuery += "idPMT IN (SELECT idPMT FROM Stream NATURAL JOIN {2} WHERE {0}={1})".format(column_name, value,
+                                                                                                        table_name)
+        # Close parenthesis after each filter condition
+        sqlQuery += ")"
+
 
     # Checks if the user wants the URL and adds the necessary query.
     if urlsFlag:
@@ -195,7 +219,6 @@ def querySearch(searchDict, urlsFlag=False):
     else:
         sqlQuery = "SELECT Path, Service_Name, PIDNumber FROM PMT NATURAL JOIN TS WHERE idPMT IN ({0})".format(sqlQuery)
 
-    print(sqlQuery)
     # Execute the sqlQuery and get answer in rows.
     rows = _query_db(sqlQuery, dbName)
 
