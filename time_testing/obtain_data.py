@@ -62,10 +62,6 @@ def obtainData (fullname, xml_name, cursor, idPMT, idStream, idVideo, idAudio, i
                         if name_PID == pid:
                             service_name = name.find(tag+'ServiceName').text
         idPMT +=1
-        #print ('num_onid = '+str(num_onid))
-        #print ('name_onid = '+name_onid)
-        #print ('network_onid = '+network_onid)
-        #print ('country_onid = '+country_onid)
         insert_PMT(idPMT, pid, xml_name, num_onid, name_onid, network_onid, country_onid, service_name, cursor)
         #STREAM SECTION
         for streams in pmt.findall(tag+'Streams'):
@@ -195,3 +191,19 @@ def obtainData (fullname, xml_name, cursor, idPMT, idStream, idVideo, idAudio, i
                                                             insert_URL(idURL, url, idPrivate, cursor)
                     idStream +=1
                     insert_Stream_Private(idStream, elementary_PID, stream_type, component_tag, idPMT, xml_name, idPrivate, cursor)
+    del tree
+    del root
+#    del inf
+#    del ait
+#    del apps
+#    del app
+#    del urls
+#    del urlFinal
+#    del vids
+#    del auds
+#    del pmt
+#    del onids
+#    del onid
+#    del parserinfo
+#    del names
+#    del streams
