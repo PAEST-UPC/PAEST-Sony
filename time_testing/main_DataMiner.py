@@ -15,7 +15,7 @@ from erase_TS import *
 import constants as cte
 
 
-final_xml_path = "/home/ubuntu/pae/xml/Time_testing/"
+final_xml_path = "/home/ubuntu/pae/xml/MergerTeam"
 
 def ls(final_xml_path = getcwd()):
         return [arch.name for arch in scandir(final_xml_path) if arch.is_file()]

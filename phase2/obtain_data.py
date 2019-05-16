@@ -62,10 +62,6 @@ def obtainData (fullname, xml_name, cursor, idPMT, idStream, idVideo, idAudio, i
                         if name_PID == pid:
                             service_name = name.find(tag+'ServiceName').text
         idPMT +=1
-        #print ('num_onid = '+str(num_onid))
-        #print ('name_onid = '+name_onid)
-        #print ('network_onid = '+network_onid)
-        #print ('country_onid = '+country_onid)
         insert_PMT(idPMT, pid, xml_name, num_onid, name_onid, network_onid, country_onid, service_name, cursor)
         #STREAM SECTION
         for streams in pmt.findall(tag+'Streams'):
@@ -85,6 +81,17 @@ def obtainData (fullname, xml_name, cursor, idPMT, idStream, idVideo, idAudio, i
                     height=-1
                     interlaced=(cte.MISSING)
                     video_typename = 'not defined'
+                    bit_rate_mode = "not defined"
+                    pixel_aspect_ratio = -1
+                    display_aspect_ratio = -1
+                    frame_rate = -1
+                    hfr = 0
+                    cromaSubSampling = "not defined"
+                    colorSpace = "not defined"
+                    colorPrimary = "not defined"
+                    matrixCoefficients = "not defined"
+                    HDRstandard = "not defined"
+
                     if stream_type == cte.VIDEO_HEVC:
                         for hevc in stream.findall(tag+'HEVCVideoDescriptor'):
                             hdr = int(hevc.find(tag+'sub_pic_hrd_params_not_present_flag').text)
@@ -100,11 +107,8 @@ def obtainData (fullname, xml_name, cursor, idPMT, idStream, idVideo, idAudio, i
                                         width = int(info.find(tag+'Width').text)
                                         height = int(info.find(tag+'Height').text)
                                         interlaced=int(info.find(tag+'Interlaced').text)
+
                     #OBTINING NEW PARAMETERS OF VIDEO
-                    bit_rate_mode = "not defined"
-                    pixel_aspect_ratio = -1
-                    display_aspect_ratio = -1
-                    frame_rate = -1
                     for parserInfo in root.findall(tag+'Parser_Info'):
                         for vids in parserInfo.findall(tag+'Videos'):
                             for vid in vids.findall(tag+'Video'):
@@ -116,8 +120,14 @@ def obtainData (fullname, xml_name, cursor, idPMT, idStream, idVideo, idAudio, i
                                     pixel_aspect_ratio = float(vid.find(tag+'PixelAspectRatio').text)
                                     display_aspect_ratio = float(vid.find(tag+'DisplayAspectRatio').text)
                                     frame_rate = float(vid.find(tag+'FrameRate').text)
+                                    hfr = int(vid.find(tag+'HFR').text)
+                                    cromaSubSampling = vid.find(tag+'ChromaSubsampling').text
+                                    colorSpace = vid.find(tag+'ColorSpace').text
+                                    colorPrimary = vid.find(tag+'colour_primaries').text
+                                    matrixCoefficients = vid.find(tag+'matrix_coefficients').text
+                                    HDRstandard = vid.find(tag+'transfer_characteristics').text
                     idVideo +=1
-                    insert_Video(idVideo, width, height, interlaced, video_typename, bit_rate_mode, pixel_aspect_ratio, display_aspect_ratio, frame_rate, hdr, cursor)
+                    insert_Video(idVideo, width, height, interlaced, video_typename, bit_rate_mode, pixel_aspect_ratio, display_aspect_ratio, frame_rate, hdr, hfr, cromaSubSampling, colorSpace, colorPrimary, matrixCoefficients, HDRstandard, cursor)
                     idStream +=1
                     insert_Stream_Video(idStream, elementary_PID, stream_type, component_tag, idPMT, xml_name, idVideo, cursor)
                 elif stream_type == cte.AUDIO_MPEG_1 or stream_type == cte.AUDIO_MPEG_2 or stream_type == cte.AUDIO_MPEG4_AAC or stream_type == cte.AUDIO_MPEG_AAC or stream_type == cte.AUDIO_AC3 or stream_type == cte.AUDIO_DTS:

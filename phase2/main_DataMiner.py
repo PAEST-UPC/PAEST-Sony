@@ -29,7 +29,6 @@ if (len(sys.argv)==2):
                                  password='paesa19',
                                  charset="utf8mb4")
     if (connection.is_connected()):
-        print ('Connected to the DB')
         cursor = connection.cursor()
     else:
         print ('You are currently disconnected')
@@ -52,6 +51,9 @@ if (len(sys.argv)==2):
             fullname = os.path.join(final_xml_path, xml_name)
             obtainData(fullname, xml_name, cursor, idPMT, idStream, idVideo, idAudio, idSubtitle, idTeletext, idPrivate, idURL)
             print ("Data obtained!")
+        else:
+            print (xml_name)
+            print ("Already in the DataBase")
    
     erase_old_TS (xml_list, cursor)
 
