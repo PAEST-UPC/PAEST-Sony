@@ -6,7 +6,7 @@ import mysql.connector
 dbServerName = "127.0.0.1"
 dbUser = "ubuntu"
 dbPassword = "paesa19"
-dbName = "test9920"
+dbName = "searcherTest2"
 dictdbName = "dictionary"
 charSet = "utf8mb4"
 
@@ -251,7 +251,7 @@ def querySearch(searchDict, urlsFlag=False):
                 convertedService_Name = hex(int(PIDNumber))
             if Path not in resultDict:
                 resultDict[Path] = []
-            if Service_Name == NOT_DEFINED:
+            if Service_Name != NOT_DEFINED:
                 resultDict[Path].append(convertedService_Name)
 
 
