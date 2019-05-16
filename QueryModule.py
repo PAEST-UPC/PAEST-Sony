@@ -251,8 +251,7 @@ def querySearch(searchDict, urlsFlag=False):
                 convertedService_Name = hex(int(PIDNumber))
             if Path not in resultDict:
                 resultDict[Path] = []
-            if Service_Name != NOT_DEFINED:
-                resultDict[Path].append(convertedService_Name)
+            resultDict[Path].append(convertedService_Name)
 
 
     return resultDict
