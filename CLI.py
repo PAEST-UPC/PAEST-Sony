@@ -5,18 +5,25 @@ from SearchModule import *
 CACHE_TIME = 3600
 
 def main():
-    start = time.time()
     _xml_dir_path = r'/home/ubuntu/pae/xml/Test9920'
+    # Get the filters dictionary to search.
     filterDict = getFilterDict()
 
+    # Parses the arguments and set the flags.
     searchDict, urlsFlag, csvFlag = _parseArguments(filterDict)
+    
+    # Checks if the user wants to serach by string, and implements the search.
     if 'searchString' in searchDict:
         matchList = searchText(searchDict['searchString'],_xml_dir_path)
-        return matchList
+        for xml in matchList:
+            print(xml)
+          
+    # Implements the search for features.
     else:
+        # Checks if the information to search is only in the TS table.
         onlyTS = all([table_name == 'TS' for table_name, column_name in searchDict])
         searchResult = querySearch(searchDict,urlsFlag)
-        
+        # Checks if the user wants to obtain the URL of the TS, and in this case it displays it.
         if urlsFlag:
             for path in searchResult:
                 print(path + ':')
@@ -24,18 +31,16 @@ def main():
                     print(' ' + service + ': ')
                     for url in searchResult[path][service]:
                         print('     ' + url)
+        # Shows the path of the resulting services (TS).
         else:
             for path in searchResult:
                 if onlyTS:
                     searchResult[path] = 'All services'
                 print(path + ': ' + str(searchResult[path]))
-
+        # Checks if the user wants to save the output in a .csv file.
         if csvFlag:
             df = pandas.DataFrame.from_dict(searchResult, orient='index')
             df.to_csv('searchResult.csv')
-
-    end = time.time()
-    print(end-start)
 
 
 # This function parses the arguments and returns a searchDict.
@@ -61,11 +66,13 @@ def _parseArguments(filterDict):
                 parser.exit(message='Values of ' + column_name + ': ' + str(filterDict[(table_name,column_name)]))
 
     args = vars(parser.parse_args())
-
+    
+    # Obtain the values of the URL and csv flags.
     urlsFlag = args['getUrls']
 
     csvFlag = args['exportCsv']
 
+    # Consider the search for string.
     if args['searchString']:
         if len(sys.argv)>3:
             parser.error('searchString is not compatible with other arguments')
@@ -73,6 +80,7 @@ def _parseArguments(filterDict):
             searchDict['searchString'] = args['searchString']
         return searchDict, urlsFlag, csvFlag
 
+    # Obtains the parameters that the user wants to search for.
     for table_name, column_name in filterDict:
         if args[column_name]:
             searchDict[(table_name,column_name)] = args[column_name]
