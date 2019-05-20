@@ -2,6 +2,10 @@
 
 ########################
 
+#PATH
+
+XML_PATH = "/home/ubuntu/pae/xml/MergerTeam"
+
 #Numerical Constants codec Audio/Video#
 
 VIDEO_MPEG = 2
