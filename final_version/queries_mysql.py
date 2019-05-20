@@ -36,8 +36,8 @@ def insert_Stream_Private(idStream, elementary_PID, stream_type, component_tag, 
     insertStatement = "INSERT INTO Stream (idStream, Elementary_PID, Stream_Type, Stream_Standard, idPMT, identifierTS, idVideo, idAudio, idSubtitles, idTeletext, idPrivate) VALUES ({0}, {1}, {2}, {3}, {4}, '{5}', NULL, NULL, NULL, NULL, {6})".format(idStream, elementary_PID, stream_type, component_tag, idPMT, xml_name, idPrivate)
     cursor.execute(insertStatement)
 
-def insert_Video(idVideo, W, H, I, name, bit_rate, pixel_aspect, display_aspect, frame_rate, hdr, cursor):
-    insertStatement = "INSERT INTO Video (idVideo, Width, Height, Interlaced, TypeName, Bit_Rate_Mode, Pixel_Aspect_Ratio, Display_Aspect_Ratio, Frame_Rate, HDR) VALUES ({0}, {1}, {2}, {3}, '{4}', '{5}', {6}, {7}, {8}, {9})".format(idVideo, W, H, I, name, bit_rate, pixel_aspect, display_aspect, frame_rate, hdr)
+def insert_Video(idVideo, W, H, I, name, bit_rate, pixel_aspect, display_aspect, frame_rate, hdr, hfr, cromaSubSampling, colorSpace, colorPrimary, matrixCoefficientts, HDRstandards, cursor):
+    insertStatement = "INSERT INTO Video (idVideo, Width, Height, Interlaced, TypeName, Bit_Rate_Mode, Pixel_Aspect_Ratio, Display_Aspect_Ratio, Frame_Rate, HDR, HFR, CromaSubSampling, Color_Space, Color_Primary, Matrix_Coefficients, HDR_Standard) VALUES ({0}, {1}, {2}, {3}, '{4}', '{5}', {6}, {7}, {8}, {9}, {10}, '{11}', '{12}', '{13}', '{14}', '{15}')".format(idVideo, W, H, I, name, bit_rate, pixel_aspect, display_aspect, frame_rate, hdr, hfr, cromaSubSampling, colorSpace, colorPrimary, matrixCoefficientts, HDRstandards)
     cursor.execute(insertStatement)
 
 def insert_Audio(idAudio, audio_type, audio_language, bit_rate_mode, bit_rate, channels, frame_rate, cursor):

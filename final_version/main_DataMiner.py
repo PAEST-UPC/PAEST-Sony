@@ -23,20 +23,21 @@ def ls(final_xml_path = getcwd()):
 if (len(sys.argv)==2):
     print ('####### SCRIPT START ##########')
 
+    connection = connector.connect(host='localhost',
+                                 database=sys.argv[1],
+                                 user='ubuntu',
+                                 password='paesa19',
+                                 charset="utf8mb4")
+    if (connection.is_connected()):
+        cursor = connection.cursor()
+    else:
+        print ('You are currently disconnected')
     
+    TS_list = obtain_TS(cursor)
     xml_list = ls(final_xml_path)
 
     for xml_name in (xml_list):
-
-        connection = connector.connect(host='localhost', database=sys.argv[1], user='ubuntu', password='paesa19', charset="utf8mb4")
-        if (connection.is_connected()):
-            print ('Connected to the DB')
-            cursor = connection.cursor()
-        else:
-            print ('You are currently disconnected')
-        TS_list = obtain_TS(cursor)
-
-        if xml_name not in TS_list:
+        if xml_name not in TS_list: 
             print (xml_name)
             print ("Obtaining Data...")
             idPMT = obtain_PMT(cursor)
@@ -50,17 +51,10 @@ if (len(sys.argv)==2):
             fullname = os.path.join(final_xml_path, xml_name)
             obtainData(fullname, xml_name, cursor, idPMT, idStream, idVideo, idAudio, idSubtitle, idTeletext, idPrivate, idURL)
             print ("Data obtained!")
-        connection.commit()
-        cursor.close()
-        connection.close()
+        else:
+            print (xml_name)
+            print ("Already in the DataBase")
    
-    connection = connector.connect(host='localhost', database=sys.argv[1], user='ubuntu', password='paesa19', charset="utf8mb4")
-    if (connection.is_connected()):
-        print ('Connected to the DB')
-        cursor = connection.cursor()
-    else:
-        print ('You are currently disconnected')
-
     erase_old_TS (xml_list, cursor)
 
     connection.commit()
