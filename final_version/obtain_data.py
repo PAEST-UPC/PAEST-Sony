@@ -9,14 +9,23 @@ from queries_mysql import *
 import constants as cte
 
 def obtainData (fullname, xml_name, cursor, idPMT, idStream, idVideo, idAudio, idSubtitle, idTeletext, idPrivate, idURL):
+    #tag inserted by the stream analyser
     tag ="{http://www.streamanalyser.com/schema}"
+    #opens a xml file and obtains it's tree hierarchy
     tree = ET.parse(fullname)
     root = tree.getroot()
-            
-    #TS SECTION
+    
+    #OBTAINING DATA FROM THE XML
+    #TS TABLE SECTION
     #INFO SECTION
+    #all the vars are initialized to not defined or -1 to avoid insert errors
     orbital_position = 'not defined'
     operator = 'not defined'
+    country_code = 'not defined'
+    comment = 'not defined'
+    frequency = 'not defined'
+    path = 'not defined'
+    tipe = 'not defined'
     for inf in root.findall(tag+'Information'):
         country_code = inf.find(tag+'Country').text
         comment = inf.find(tag+'Comment').text
@@ -32,35 +41,38 @@ def obtainData (fullname, xml_name, cursor, idPMT, idStream, idVideo, idAudio, i
     recording_time = "not defined"
     for tot in root.findall(tag+'TOT'):
         recording_time = tot.find(tag+'UTC_time').text
+    #INSERTION TS
     insert_TS(xml_name, recording_time, country_code, tipe, comment, frequency, operator, orbital_position, path, cursor)
 
     #PMT SECTION
     for pmt in root.findall(tag+'PMT'):
         pid = int(pmt.find(tag+'PID').text,16)
-
-        #TO DO NEW PARAMETERS OF PMT
         num_onid = -1
         name_onid = "not defined"
         network_onid = "not defined"
         country_onid = "not defined"
         service_name = "not defined"
+        #checks if the onids section exists in the xml because some does not have it
         for child in root:
             if child.tag == (tag+'Onids'):
                 for onids in root.findall(tag+'Onids'):
+                    #ONID SECTION
                     for onid in onids.findall(tag+'Onid'):
+                        #relate the onid to the PID
                         onid_PID = int(onid.find(tag+'PID').text,16)
                         if onid_PID == pid:
                             num_onid = int(onid.find(tag+'Onid_Number').text)
                             name_onid = onid.find(tag+'Onid_Operator').text
                             network_onid = onid.find(tag+'Onid_Network_Name').text
                             country_onid = onid.find(tag+'Onid_Country').text
-
+        #Parser info SECTION
         for parserinfo in root.findall (tag+'Parser_Info'):
                 for names in parserinfo.findall(tag+'Names'):
                     for name in names.findall(tag+'Name'):
                         name_PID = int(name.find(tag+'ID').text)
                         if name_PID == pid:
                             service_name = name.find(tag+'ServiceName').text
+        #INSERTION PMT
         idPMT +=1
         insert_PMT(idPMT, pid, xml_name, num_onid, name_onid, network_onid, country_onid, service_name, cursor)
         #STREAM SECTION
@@ -126,8 +138,10 @@ def obtainData (fullname, xml_name, cursor, idPMT, idStream, idVideo, idAudio, i
                                     colorPrimary = vid.find(tag+'colour_primaries').text
                                     matrixCoefficients = vid.find(tag+'matrix_coefficients').text
                                     HDRstandard = vid.find(tag+'transfer_characteristics').text
+                    #INSERTION VIDEO
                     idVideo +=1
                     insert_Video(idVideo, width, height, interlaced, video_typename, bit_rate_mode, pixel_aspect_ratio, display_aspect_ratio, frame_rate, hdr, hfr, cromaSubSampling, colorSpace, colorPrimary, matrixCoefficients, HDRstandard, cursor)
+                    #INSERTION STREAM
                     idStream +=1
                     insert_Stream_Video(idStream, elementary_PID, stream_type, component_tag, idPMT, xml_name, idVideo, cursor)
                 elif stream_type == cte.AUDIO_MPEG_1 or stream_type == cte.AUDIO_MPEG_2 or stream_type == cte.AUDIO_MPEG4_AAC or stream_type == cte.AUDIO_MPEG_AAC or stream_type == cte.AUDIO_AC3 or stream_type == cte.AUDIO_DTS:
@@ -187,8 +201,11 @@ def obtainData (fullname, xml_name, cursor, idPMT, idStream, idVideo, idAudio, i
                                 private_pid = int(ait.find(tag+'PID').text,16)
                                 if private_pid == elementary_PID:
                                     private_standard = 1
+                    #INSERTION PRIVATE
                     idPrivate +=1
                     insert_Private(idPrivate, private_standard, cursor)
+                    #URL SECTION
+                    #Checking the existence of the url section
                     for child in root:
                         if child.tag == (tag+'AIT'):
                             for ait in root.findall(tag+'AIT'):
@@ -201,7 +218,9 @@ def obtainData (fullname, xml_name, cursor, idPMT, idStream, idVideo, idAudio, i
                                                     for urlFinal in urls.findall(tag+'URL'):
                                                         for urlList in  urlFinal.findall(tag+'URLBase'):
                                                             url = urlList.text
+                                                            #INSERTION URL
                                                             idURL +=1
                                                             insert_URL(idURL, url, idPrivate, cursor)
+                    #INSERTION STREAM
                     idStream +=1
                     insert_Stream_Private(idStream, elementary_PID, stream_type, component_tag, idPMT, xml_name, idPrivate, cursor)

@@ -15,14 +15,17 @@ from erase_TS import *
 import constants as cte
 
 
-final_xml_path = cte.XML_PATH 
+final_xml_path = cte.XML_PATH
 
+#Function to list all files in a folder
 def ls(final_xml_path = getcwd()):
         return [arch.name for arch in scandir(final_xml_path) if arch.is_file()]
 
+#check if the number of parameters is correct
 if (len(sys.argv)==2):
     print ('####### SCRIPT START ##########')
-
+    
+    #connect to the DB
     connection = connector.connect(host='localhost',
                                  database=sys.argv[1],
                                  user='ubuntu',
@@ -33,10 +36,13 @@ if (len(sys.argv)==2):
     else:
         print ('You are currently disconnected')
     
+    #list of all TS titles inside the DB
     TS_list = obtain_TS(cursor)
+    #list of all TS titles in te folder
     xml_list = ls(final_xml_path)
 
     for xml_name in (xml_list):
+        #Check if the TS is inside the DB
         if xml_name not in TS_list: 
             print (xml_name)
             print ("Obtaining Data...")
@@ -55,6 +61,7 @@ if (len(sys.argv)==2):
             print (xml_name)
             print ("Already in the DataBase")
    
+    #calls the function that detects files in the DB that are not in the folder and deletes them
     erase_old_TS (xml_list, cursor)
 
     connection.commit()

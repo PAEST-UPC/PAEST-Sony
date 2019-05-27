@@ -8,11 +8,14 @@ from queries_mysql import *
 
 
 def erase_old_TS (xml_list, cursor):
-    
+    #creates a list of al TS titles inside the database
     TS_list = obtain_TS (cursor)
+
     for name in TS_list:
+        #checks if the TS is not in the folder
         if name not in xml_list:
             print ("Deleting " + name + " from the Database")
+            #obtains all the rows related to the TS
             PMT_list = obtain_PMTs_fromTS (name, cursor)
             Stream_list = obtain_Streams_fromTS (name, cursor)
             Video_list = obtain_Videos_fromTS (name, cursor)
@@ -20,6 +23,7 @@ def erase_old_TS (xml_list, cursor):
             Subtitles_list = obtain_Subtitles_fromTS (name, cursor)
             Teletext_list = obtain_Teletext_fromTS (name, cursor)
             Private_list = obtain_Private_fromTS (name, cursor)
+            #deletes all the information obtained
             for Video in Video_list:
                 delete_Video (Video, cursor)
             for Audio in Audio_list:
