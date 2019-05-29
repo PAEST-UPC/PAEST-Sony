@@ -6,7 +6,7 @@ import mysql.connector
 dbServerName = "127.0.0.1"
 dbUser = "ubuntu"
 dbPassword = "paesa19"
-dbName = "searcherTest2"
+dbName = "test48000"
 dictdbName = "dictionary"
 charSet = "utf8mb4"
 
