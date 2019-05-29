@@ -1,0 +1,43 @@
+<h2> #{tTitle theme}</h2>
+
+<h2> Descripció: #{tDescription theme}</h3>
+
+<p> <a href="@{HomeR}">Tornar a l'inici</a> </p>
+
+<p><small>#{qUser question}: </small> <big>#{qTitle question}</big> </p>
+
+<p> Descripció: #{qText question}</p>
+
+<p> <a href="@{ThemeR tid}">Tornar a temes</a> </p>
+
+<p><big>Respostes:</big></p>
+
+$forall{ p <- answers }
+  <p>#{aUser (snd p)}: #{aText (snd p)} | #{show (aPosted (snd p))}
+    $if{ isLeader }
+      <form role="form" method="POST" action="@{QuestionR tid qid}">
+      <input type="hidden" name="aid" value="#{(fst p)}">
+      <button type="submit" class ="btn btn-success btn-xs" name="delete-answer">Elimina resposta</button>
+      </form>
+    $end
+  </p>
+  
+$end
+
+$if{ isLeader }
+  <form role="form" method="POST" action="@{QuestionR tid qid}">
+  <button type="submit" class ="btn btn-success btn-xs" name="delete-question">Elimina pregunta</button>
+  </form>
+$end
+  
+  
+$maybe{ user <- mbuser }
+  <div class="row">
+  <div class="col-sm-offset-2 col-sm-10">
+    <form role="form" method="POST" action="@{QuestionR tid qid}">
+      ^{aformw}
+      <button type="submit" class="btn btn-success">Afegeix resposta</button>
+    </form>
+  </div>
+  </div>
+$end

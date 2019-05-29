@@ -1,0 +1,19 @@
+<h1>Benvinguts al Forum del Rubén i l'Enric</h1>
+
+$forall{ p <- themes }
+ <h3> <p>Responsable: #{tLeader (snd p)}, Categoria: #{tCategory (snd p)}, Títol: #{tTitle (snd p)}
+     (<a href="@{ThemeR (fst p)}">enllaç a la ruta del tema</a>)</p> </h3>
+$end
+
+$if{ maybe False isAdmin mbuser }
+<h5>Emplena el formulari per afegir un nou Tema</h5>
+  <div class="row">
+  <div class="col-sm-offset-2 col-sm-10">
+    <form role="form" method="POST" action="@{HomeR}">
+      ^{tformw}
+      <button type="submit" class="btn btn-success">Afegeix tema</button>
+    </form>
+  </div>
+  </div>
+$end
+

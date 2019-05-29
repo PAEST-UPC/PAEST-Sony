@@ -1,0 +1,40 @@
+<h2> #{tTitle theme}</h2>
+
+<h2> Descripció: #{tDescription theme}</h3>
+
+<p> <a href="@{HomeR}">Tornar a l'inici</a> </p>
+
+$forall{ p <- questions }
+  <p>#{qUser (snd p)}: <a href="@{QuestionR (qTheme (snd p)) (fst p) }">#{qTitle (snd p)}</a> | #{show (qPosted (snd p))}</p>
+
+$end
+
+
+
+$maybe{ user <- mbuser }
+  <div class="row">
+  <div class="col-sm-offset-2 col-sm-10">
+    <form role="form" method="POST" action="@{ThemeR tid}">
+      ^{qformw}
+      <button type="submit" class="btn btn-success" name="addQuestion">Afegeix pregunta</button>
+    </form>
+  </div>
+  </div>
+$end
+
+
+$if{ isLeader }
+  <h5>Emplena el formulari per modificar el Tema</h5>
+  <div class="row">
+  <div class="col-sm-offset-2 col-sm-10">
+    <form role="form" method="POST" action="@{ThemeR tid}">
+      ^{tformw}
+      <button type="submit" class="btn btn-success">Afegeix tema</button>
+    </form>
+  </div>
+  </div>
+$end
+
+
+
+
