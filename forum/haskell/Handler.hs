@@ -104,22 +104,26 @@ postThemeR tid = do
         mb <- liftIO $ getTheme tid db
         maybe notFound pure mb
     (qformr, qformw) <- runAFormPost (questionForm tid)
-    case qformr of
-        FormSuccess newQuestion  -> do
-            liftIO $ addQuestion newQuestion db
-            redirectRoute (ThemeR tid) []
-        _ -> do
-            questions <- liftIO $ getQuestionList tid db
-            let mbuser = Just user
-            let isLeader = maybe False (tLeader theme ==) mbuser
-            defaultLayout $(widgetTemplFile "src/forum/templates/theme.html")
     (tformr, tformw) <- runAFormPost themeForm
-    case tformr of
-        FormSuccess updatedTheme -> do
-            liftIO $ updateTheme tid updatedTheme db
-            redirectRoute (ThemeR tid) []
-        _ -> do
-            redirectRoute (ThemeR tid) []
+    isAdded <- isJust <$> lookupPostParam "addQuestion"
+    isUpdated <- isJust <$> lookupPostParam "updateTheme"
+    if isAdded then do
+        case qformr of
+            FormSuccess newQuestion  -> do
+                liftIO $ addQuestion newQuestion db
+                redirectRoute (ThemeR tid) []
+            _ -> do
+                questions <- liftIO $ getQuestionList tid db
+                let mbuser = Just user
+                let isLeader = maybe False (tLeader theme ==) mbuser
+                defaultLayout $(widgetTemplFile "src/forum/templates/theme.html")
+    else if isUpdated then do
+        case tformr of
+            FormSuccess updatedTheme -> do
+                liftIO $ updateTheme tid updatedTheme db
+                redirectRoute (ThemeR tid) []
+            _ -> do
+                redirectRoute (ThemeR tid) []
     --fail "A completar per l'estudiant"
 
 ------------------------------------------------------------------
